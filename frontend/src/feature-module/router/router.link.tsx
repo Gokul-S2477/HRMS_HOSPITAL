@@ -214,6 +214,9 @@ import PurchaseTransaction from "../super-admin/purchase-transaction";
 import Trainers from "../training/trainers";
 import TrainingList from "../training/trainingList";
 import React from "react";
+import ProtectedRoute from "../../core/auth/ProtectedRoute";
+import LeadsDashboard from "../mainMenu/leadsDashboard";
+
 const routes = all_routes;
 
 export const publicRoutes = [
@@ -223,26 +226,43 @@ export const publicRoutes = [
     element: <Navigate to="/index" />,
     route: Route,
   },
-  {
+    {
     path: routes.adminDashboard,
-    element: <AdminDashboard />,
+    element: (
+      <ProtectedRoute>
+        <AdminDashboard />
+      </ProtectedRoute>
+    ),
     route: Route,
   },
   {
     path: routes.employeeDashboard,
-    element: <EmployeeDashboard />,
+    element: (
+      <ProtectedRoute>
+        <EmployeeDashboard />
+      </ProtectedRoute>
+    ),
     route: Route,
   },
   {
     path: routes.leadsDashboard,
-    element: <LeadsDasboard />,
+    element: (
+      <ProtectedRoute>
+        <LeadsDashboard />
+      </ProtectedRoute>
+    ),
     route: Route,
   },
   {
     path: routes.dealsDashboard,
-    element: <DealsDashboard />,
+    element: (
+      <ProtectedRoute>
+        <DealsDashboard />
+      </ProtectedRoute>
+    ),
     route: Route,
   },
+
   {
     path: routes.trainingType,
     element: <TrainingType />,

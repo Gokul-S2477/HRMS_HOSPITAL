@@ -1,20 +1,15 @@
-// frontend/src/core/auth/ProtectedRoute.tsx
-import React from "react";
 import { Navigate } from "react-router-dom";
-import { getToken } from "./auth";
 
-type Props = {
-  children: JSX.Element;
-  loginPath?: string;
-};
+interface Props {
+  children: React.ReactNode;
+}
 
-const ProtectedRoute = ({ children, loginPath = "/login" }: Props) => {
-  const token = getToken();
+export default function ProtectedRoute({ children }: Props) {
+  const token = localStorage.getItem("token");
+
   if (!token) {
-    // not authenticated -> go to login
-    return <Navigate to={loginPath} replace />;
+    return <Navigate to="/login" replace />;
   }
-  return children;
-};
 
-export default ProtectedRoute;
+  return <>{children}</>;
+}
