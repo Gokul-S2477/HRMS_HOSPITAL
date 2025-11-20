@@ -11,9 +11,25 @@ import { Calendar } from 'primereact/calendar';
 import { DatePicker } from "antd";
 import CommonSelect from "../../../core/common/commonSelect";
 import CollapseHeader from "../../../core/common/collapse-header/collapse-header";
+import axios from "axios";
 
 
 const EmployeeDashboard = () => {
+  const [employees, setEmployees] = useState([]);
+
+  const loadEmployees = async () => {
+    try {
+      const res = await axios.get("http://localhost:8000/api/employees/");
+      setEmployees(res.data);
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+    }
+  };
+
+  React.useEffect(() => {
+    loadEmployees();
+  }, []);
+  
   const routes = all_routes;
 
   const [date, setDate] = useState(new Date('2024'));
@@ -1951,6 +1967,7 @@ const EmployeeDashboard = () => {
       {/* /Page Wrapper */}
       <>
         {/* Add Leaves */}
+        
         <div className="modal fade" id="add_leaves">
           <div className="modal-dialog modal-dialog-centered modal-md">
             <div className="modal-content">
@@ -2067,13 +2084,43 @@ const EmployeeDashboard = () => {
           </div>
         </div>
         {/* /Add Leaves */}
+                {/* ⭐ Employee Table Section ⭐ */}
+        <div className="card" style={{ marginTop: "20px" }}>
+          <h3>Employee List</h3>
+
+          <table className="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Designation</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {employees.map((emp: any) => (
+                <tr key={emp.id}>
+                  <td>{emp.id}</td>
+                  <td>{emp.first_name} {emp.last_name}</td>
+                  <td>{emp.email}</td>
+                  <td>{emp.department?.name}</td>
+                  <td>{emp.designation?.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* ⭐ End Employee Table ⭐ */}
+
       </>
 
     </>
-
-
   );
 };
+
+
 
 export default EmployeeDashboard;
 

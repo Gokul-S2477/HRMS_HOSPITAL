@@ -15,7 +15,7 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-# Load .env variables
+# Load environment variables
 load_dotenv()
 
 # Base directory
@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-# Allow frontend access (localhost, 127.0.0.1, etc.)
+# Allow frontend & local environment
 ALLOWED_HOSTS = ["*", "127.0.0.1", "localhost"]
 
 # ---------------------------------------------------------------------
@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
-    
 
     # Your apps
     "employees",
@@ -65,8 +64,7 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ---------------------------------------------------------------------
 MIDDLEWARE = [
-    
-    "corsheaders.middleware.CorsMiddleware",  # Must come first for CORS to work
+    "corsheaders.middleware.CorsMiddleware",   # Must be first for CORS
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -100,14 +98,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "backend.wsgi.application"
 
 # ---------------------------------------------------------------------
-# DATABASE CONFIG (Auto fallback: Neon → SQLite)
+# DATABASE CONFIG (Neon → Fallback to SQLite automatically)
 # ---------------------------------------------------------------------
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
 
 try:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 except Exception:
-    # fallback to SQLite if Neon or DB_URL fails
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -160,18 +157,26 @@ REST_FRAMEWORK = {
 }
 
 # ---------------------------------------------------------------------
-# CORS SETTINGS (for React frontend)
+# CORS SETTINGS — REQUIRED FOR REACT FRONTEND
 # ---------------------------------------------------------------------
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ["*"]
+
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 
+# Allow everything if needed during development
+CORS_ALLOW_ALL_ORIGINS = True
+
 # ---------------------------------------------------------------------
-# LOGGING (optional: helps debug DB and CORS issues)
+# LOGGING
 # ---------------------------------------------------------------------
 LOGGING = {
     "version": 1,
@@ -181,7 +186,7 @@ LOGGING = {
 }
 
 # ---------------------------------------------------------------------
-# SIMPLE JWT SETTINGS (token lifetime, etc.)
+# SIMPLE JWT SETTINGS
 # ---------------------------------------------------------------------
 from datetime import timedelta
 
@@ -192,6 +197,3 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
-
-
-CORS_ALLOW_ALL_ORIGINS = True
