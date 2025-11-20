@@ -223,7 +223,7 @@ export const publicRoutes = [
   {
     path: "/",
     name: "Root",
-    element: <Navigate to="/index" />,
+    element: <Navigate to="/login" />,
     route: Route,
   },
     {
