@@ -1,43 +1,53 @@
 import React from "react";
 import { Route, Routes } from "react-router";
-import { authRoutes, publicRoutes } from "./router.link";
+import { authRoutes, publicRoutes, protectedRoutes } from "./router.link";
 import Feature from "../feature";
 import AuthFeature from "../authFeature";
 import ProtectedRoute from "../../core/auth/ProtectedRoute";
 
 const ALLRoutes: React.FC = () => {
   return (
-    <>
-      <Routes>
+    <Routes>
 
-        {/* Public Only: /auth/login */}
-        <Route element={<Feature />}>
-          {publicRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={route.element}
-              key={idx}
-            />
-          ))}
-        </Route>
+      {/* 🔹 PUBLIC ROUTES (Login, Register, Forgot Password) */}
+      <Route element={<AuthFeature />}>
+        {authRoutes.map((route, idx) => (
+          <Route
+            key={idx}
+            path={route.path}
+            element={route.element}
+          />
+        ))}
+      </Route>
 
-        {/* All other routes (1500+ routes) are protected */}
-        <Route element={<AuthFeature />}>
-          {authRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              key={idx}
-              element={
-                <ProtectedRoute>
-                  {route.element}
-                </ProtectedRoute>
-              }
-            />
-          ))}
-        </Route>
+      {/* 🔒 PROTECTED ROUTES (Dashboards + All 1500 pages) */}
+      <Route element={<Feature />}>
+        {protectedRoutes.map((route, idx) => (
+          <Route
+            key={idx}
+            path={route.path}
+            element={
+              <ProtectedRoute>
+                {route.element}
+              </ProtectedRoute>
+            }
+          />
+        ))}
 
-      </Routes>
-    </>
+        {publicRoutes.map((route, idx) => (
+          <Route
+            key={idx}
+            path={route.path}
+            element={
+              <ProtectedRoute>
+                {route.element}
+              </ProtectedRoute>
+            }
+          />
+        ))}
+      </Route>
+
+    </Routes>
   );
 };
 

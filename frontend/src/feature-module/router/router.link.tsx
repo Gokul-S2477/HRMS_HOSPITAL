@@ -219,6 +219,9 @@ import LeadsDashboard from "../mainMenu/leadsDashboard";
 
 const routes = all_routes;
 
+
+
+
 export const publicRoutes = [
   {
     path: "/",
@@ -226,7 +229,7 @@ export const publicRoutes = [
     element: <Navigate to="/login" />,
     route: Route,
   },
-    {
+  /*  {
     path: routes.adminDashboard,
     element: (
       <ProtectedRoute>
@@ -261,7 +264,7 @@ export const publicRoutes = [
       </ProtectedRoute>
     ),
     route: Route,
-  },
+  }, */
 
   {
     path: routes.trainingType,
@@ -1348,5 +1351,23 @@ export const authRoutes = [
   {
     path: routes.resetPasswordSuccess3,
     element: <ResetPasswordSuccess3 />,
+  },
+];
+export const protectedRoutes = [
+  {
+    path: routes.adminDashboard,
+    element: <AdminDashboard />,
+  },
+  {
+    path: routes.employeeDashboard,
+    element: <EmployeeDashboard />,
+  },
+  {
+    path: routes.leadsDashboard,
+    element: <LeadsDashboard />,
+  },
+  {
+    path: routes.dealsDashboard,
+    element: <DealsDashboard />,
   },
 ];
