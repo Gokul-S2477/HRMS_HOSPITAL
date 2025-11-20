@@ -64,7 +64,8 @@ const EmployeeList: React.FC = () => {
   });
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete this employee?")) return;
+    if (!window.confirm("Delete this employee?")) return;
+
     try {
       await axios.delete(`${API}${id}/`);
       setEmployees((prev) => prev.filter((p) => p.id !== id));

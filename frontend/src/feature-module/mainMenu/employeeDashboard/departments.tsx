@@ -34,7 +34,8 @@ const Departments: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete department?")) return;
+    if (!window.confirm("Delete department?")) return;
+
     try { await axios.delete(`${API}${id}/`); load(); } catch (err) { console.error(err); }
   };
 

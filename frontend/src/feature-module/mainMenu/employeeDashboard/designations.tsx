@@ -20,7 +20,8 @@ const Designations: React.FC = () => {
   };
 
   const remove = async (id: number) => {
-    if (!confirm("Delete designation?")) return;
+    if (!window.confirm("Delete designation?")) return;
+
     try { await axios.delete(`${API}${id}/`); load(); } catch (err) { console.error(err); }
   };
 

@@ -21,7 +21,8 @@ const Policies: React.FC = () => {
   };
 
   const remove = async (id: number) => {
-    if (!confirm("Delete policy?")) return;
+    if (!window.confirm("Delete policy?")) return;
+
     try { await axios.delete(`${API}${id}/`); load(); } catch (err) { console.error(err); alert("Failed to delete"); }
   };
 
