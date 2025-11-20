@@ -216,7 +216,13 @@ import TrainingList from "../training/trainingList";
 import React from "react";
 import ProtectedRoute from "../../core/auth/ProtectedRoute";
 import LeadsDashboard from "../mainMenu/leadsDashboard";
-
+//import EmployeeDashboard from "../mainMenu/employeeDashboard/employee-dashboard";
+import EmployeeList from "../mainMenu/employeeDashboard/employee-list";
+import EmployeeGrid from "../mainMenu/employeeDashboard/employee-grid";
+import EmployeeDetails from "../mainMenu/employeeDashboard/employee-details";
+import Departments from "../mainMenu/employeeDashboard/departments";
+import Designations from "../mainMenu/employeeDashboard/designations";
+import Policies from "../mainMenu/employeeDashboard/policies";
 const routes = all_routes;
 
 
@@ -1353,6 +1359,8 @@ export const authRoutes = [
     element: <ResetPasswordSuccess3 />,
   },
 ];
+
+
 export const protectedRoutes = [
   {
     path: routes.adminDashboard,
@@ -1369,5 +1377,35 @@ export const protectedRoutes = [
   {
     path: routes.dealsDashboard,
     element: <DealsDashboard />,
+  },
+
+  // ⭐ EMPLOYEE MODULE ROUTES ⭐
+  {
+    path: "/employee-dashboard",
+    element: <EmployeeDashboard />,
+  },
+  {
+    path: "/employees-list",
+    element: <EmployeeList />,
+  },
+  {
+    path: "/employees-grid",
+    element: <EmployeeGrid />,
+  },
+  {
+    path: "/employees-details",
+    element: <EmployeeDetails />,
+  },
+  {
+    path: "/departments",
+    element: <Departments />,
+  },
+  {
+    path: "/designations",
+    element: <Designations />,
+  },
+  {
+    path: "/policies",
+    element: <Policies />,
   },
 ];
