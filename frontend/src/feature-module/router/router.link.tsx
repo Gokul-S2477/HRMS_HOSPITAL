@@ -216,16 +216,16 @@ import TrainingList from "../training/trainingList";
 import React from "react";
 import ProtectedRoute from "../../core/auth/ProtectedRoute";
 import LeadsDashboard from "../mainMenu/leadsDashboard";
-//import EmployeeDashboard from "../mainMenu/employeeDashboard/employee-dashboard";
 import EmployeeList from "../mainMenu/employeeDashboard/employee-list";
 import EmployeeGrid from "../mainMenu/employeeDashboard/employee-grid";
 import EmployeeDetails from "../mainMenu/employeeDashboard/employee-details";
 import Departments from "../mainMenu/employeeDashboard/departments";
 import Designations from "../mainMenu/employeeDashboard/designations";
 import Policies from "../mainMenu/employeeDashboard/policies";
+// ---------------------------------------------------------
+
 const routes = all_routes;
-
-
+// ---------- EMPLOYEE MODULE IMPORTS (add these) ----------
 
 
 export const publicRoutes = [
@@ -1378,34 +1378,35 @@ export const protectedRoutes = [
     path: routes.dealsDashboard,
     element: <DealsDashboard />,
   },
-
-  // ⭐ EMPLOYEE MODULE ROUTES ⭐
+    // ⭐ EMPLOYEE MODULE ROUTES (use routes.* constants, not hard-coded strings)
   {
-    path: "/employee-dashboard",
+    path: routes.employeeDashboard,
     element: <EmployeeDashboard />,
   },
   {
-    path: "/employees-list",
+    path: routes.employeeList,        // this points to "/employees" from all_routes
     element: <EmployeeList />,
   },
   {
-    path: "/employees-grid",
+    path: routes.employeeGrid,        // "/employees-grid"
     element: <EmployeeGrid />,
   },
   {
-    path: "/employees-details",
+    path: routes.employeedetails,     // "/employee-details"
     element: <EmployeeDetails />,
   },
   {
-    path: "/departments",
+    path: routes.departments,         // "/departments"
     element: <Departments />,
   },
   {
-    path: "/designations",
+    path: routes.designations,        // "/designations"
     element: <Designations />,
   },
   {
-    path: "/policies",
+    path: routes.policy,              // "/policy"
     element: <Policies />,
   },
+
+
 ];

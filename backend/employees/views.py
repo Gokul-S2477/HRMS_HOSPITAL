@@ -3,6 +3,7 @@ from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from django.utils import timezone
 from datetime import date, timedelta
 
@@ -64,7 +65,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         serializer = EmployeeSerializer(results, many=True, context={'request': request})
         return Response(serializer.data)
 
-
     @action(detail=False, methods=['get'])
     def upcoming_birthdays(self, request):
         """Birthdays in the current month."""
@@ -74,7 +74,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         serializer = EmployeeSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
-
     @action(detail=False, methods=['get'])
     def new_hires(self, request):
         """Employees hired in the last 30 days."""
@@ -83,7 +82,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
         serializer = EmployeeSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
-
 
     @action(detail=False, methods=['get'])
     def count(self, request):
@@ -98,7 +96,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             "inactive": inactive
         })
 
-
     @action(detail=False, methods=['get'])
     def department_counts(self, request):
         """Returns employee count grouped by department."""
@@ -109,11 +106,16 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
+# ================================
+#   PUBLIC ENDPOINTS FOR REACT
+# ================================
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+    permission_classes = [AllowAny]   # Allow POST, DELETE without auth
 
 
 class DesignationViewSet(viewsets.ModelViewSet):
     queryset = Designation.objects.all()
     serializer_class = DesignationSerializer
+    permission_classes = [AllowAny]   # Allow POST, DELETE without auth
