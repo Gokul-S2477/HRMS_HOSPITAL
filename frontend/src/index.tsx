@@ -3,9 +3,10 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { base_path } from "./environment";
 
-import "bootstrap/dist/css/bootstrap.min.css";  
+// ✅ BOOTSTRAP (Correct order)
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-// OTHER CSS FILES (your theme)
 import "./style/css/feather.css";
 import "./index.scss";
 import "./style/icon/boxicons/boxicons/css/boxicons.min.css";
@@ -16,16 +17,12 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./style/icon/ionic/ionicons.css";
 import "./style/icon/tabler-icons/webfont/tabler-icons.css";
 
-// ONLY ONE bootstrap JS
-import "bootstrap/dist/js/bootstrap.bundle.min.js"; 
-
 import store from "./core/data/redux/store";
 import { Provider } from "react-redux";
+
 import ALLRoutes from "./feature-module/router/router";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 
 root.render(
   <React.StrictMode>
