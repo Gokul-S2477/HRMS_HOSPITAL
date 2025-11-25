@@ -1390,8 +1390,8 @@ export const protectedRoutes = [
     element: <EmployeeList />,
   },
   {
-  path: routes.employeeAdd,
-  element: <EmployeeAdd />,
+    path: routes.employeeAdd,
+    element: <EmployeeAdd />,
   },
   {
     path: routes.employeeGrid,        // "/employees-grid"
