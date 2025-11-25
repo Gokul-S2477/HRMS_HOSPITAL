@@ -222,6 +222,8 @@ import EmployeeDetails from "../mainMenu/employeeDashboard/employee-details";
 import Departments from "../mainMenu/employeeDashboard/departments";
 import Designations from "../mainMenu/employeeDashboard/designations";
 import Policies from "../mainMenu/employeeDashboard/policies";
+import EmployeeAdd from "../mainMenu/employeeDashboard/employee-add";
+
 // ---------------------------------------------------------
 
 const routes = all_routes;
@@ -1102,10 +1104,10 @@ export const publicRoutes = [
     path: routes.termscondition,
     element: <TermsCondition />,
   },
-  {
-    path: routes.permissionpage,
-    element: <Permission />,
-  },
+  //{
+  //  path: routes.permissionpage,
+  //  element: <Permission />,
+  //},
   {
     path: routes.invoiceDetails,
     element: <InvoiceDetails />,
@@ -1388,6 +1390,10 @@ export const protectedRoutes = [
     element: <EmployeeList />,
   },
   {
+  path: routes.employeeAdd,
+  element: <EmployeeAdd />,
+  },
+  {
     path: routes.employeeGrid,        // "/employees-grid"
     element: <EmployeeGrid />,
   },
@@ -1407,6 +1413,6 @@ export const protectedRoutes = [
     path: routes.policy,              // "/policy"
     element: <Policies />,
   },
-
+  
 
 ];

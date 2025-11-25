@@ -2,11 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { base_path } from "./environment";
-
-// ✅ BOOTSTRAP (Correct order)
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./style/css/feather.css";
 import "./index.scss";
 import "./style/icon/boxicons/boxicons/css/boxicons.min.css";
@@ -21,6 +18,7 @@ import store from "./core/data/redux/store";
 import { Provider } from "react-redux";
 
 import ALLRoutes from "./feature-module/router/router";
+
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 

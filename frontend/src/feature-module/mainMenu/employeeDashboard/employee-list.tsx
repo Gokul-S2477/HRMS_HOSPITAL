@@ -1,21 +1,7 @@
+// frontend/src/feature-module/mainMenu/employeeDashboard/employee-list.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-/**
- * SmartHR-styled Employee List + Add/Edit Modal (Full permissions)
- * Paste as: frontend/src/feature-module/mainMenu/employeeDashboard/employee-list.tsx
- *
- * Backend endpoints used (adjust if different):
- *  - GET  /api/employees/
- *  - GET  /api/employees/:id/
- *  - POST /api/employees/
- *  - PUT  /api/employees/:id/
- *  - DELETE /api/employees/:id/
- *  - GET  /api/departments/
- *  - GET  /api/designations/
- */
-
+import API from "../../../api/axios"; // <-- your api client
 type Dept = { id: number; name: string };
 type Desig = { id: number; title: string };
 
@@ -87,42 +73,10 @@ const EmployeeList: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
 
-  // Modal / form
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-  const defaultForm = {
-    emp_code: "",
-    first_name: "",
-    middle_name: "",
-    last_name: "",
-    email: "",
-    phone: "",
-    address: "",
-    joining_date: "",
-    employment_type: "Full-Time",
-    role: "Other",
-    department: "",
-    designation: "",
-    salary: "",
-    is_active: true,
-  };
-
-  const [formData, setFormData] = useState<Record<string, any>>({ ...defaultForm });
-
-  // permissions typed record
-  const defaultPermissions: Record<string, PermissionSet> = {};
-  MODULES.forEach((m) => {
-    defaultPermissions[m] = { read: false, write: false, create: false, delete: false, import: false, export: false };
-  });
-  const [permissions, setPermissions] = useState<Record<string, PermissionSet>>({ ...defaultPermissions });
-  const [permissionsSelectAll, setPermissionsSelectAll] = useState<boolean>(false);
-
   // Fetch meta and employees
   const fetchMeta = async () => {
     try {
-      const [dRes, desRes] = await Promise.all([axios.get<Dept[]>(API_DEPT), axios.get<Desig[]>(API_DESIG)]);
+      const [dRes, desRes] = await Promise.all([API.get(API_DEPT), API.get(API_DESIG)]);
       setDepartments(dRes.data || []);
       setDesignations(desRes.data || []);
     } catch (err) {
@@ -133,7 +87,7 @@ const EmployeeList: React.FC = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const res = await axios.get<Employee[]>(API_EMP);
+      const res = await API.get(API_EMP);
       setEmployees(res.data || []);
     } catch (err) {
       console.error("fetchEmployees error:", err);
@@ -145,6 +99,7 @@ const EmployeeList: React.FC = () => {
   useEffect(() => {
     fetchMeta();
     fetchEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Derived totals
@@ -195,7 +150,7 @@ const EmployeeList: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this employee?")) return;
     try {
-      await axios.delete(`${API_EMP}${id}/`);
+      await API.delete(`${API_EMP}${id}/`);
       await fetchEmployees();
     } catch (err) {
       console.error("delete error:", err);
@@ -203,140 +158,14 @@ const EmployeeList: React.FC = () => {
     }
   };
 
-  // Modal open for Add
-  const openAddModal = () => {
-    setEditingId(null);
-    setFormData({ ...defaultForm });
-    setPhotoFile(null);
-    setPermissions({ ...defaultPermissions });
-    setPermissionsSelectAll(false);
-
-    const el = document.getElementById("add_employee_modal");
-    if (el && (window as any).bootstrap) {
-      const modal = new (window as any).bootstrap.Modal(el as Element);
-      modal.show();
-    } else {
-      // If bootstrap isn't loaded, fallback to showing a basic alert so user knows
-      console.warn("Bootstrap modal not found on window. Make sure you imported bootstrap JS.");
-      alert("Bootstrap JS not loaded; modal cannot open. Please add `import 'bootstrap/dist/js/bootstrap.bundle.min.js'` to your index.tsx.");
-    }
+  // NEW: navigate to add page instead of modal
+  const goToAddPage = () => {
+    navigate("/employee-add");
   };
 
-  // Modal open for Edit
-  const openEditModal = async (id: number) => {
-    try {
-      const res = await axios.get<Employee>(`${API_EMP}${id}/`);
-      const emp = res.data;
-      setEditingId(emp.id);
-      setFormData({
-        emp_code: emp.emp_code ?? "",
-        first_name: emp.first_name ?? "",
-        middle_name: emp.middle_name ?? "",
-        last_name: emp.last_name ?? "",
-        email: emp.email ?? "",
-        phone: emp.phone ?? "",
-        address: emp.address ?? "",
-        joining_date: emp.joining_date ?? "",
-        employment_type: emp.employment_type ?? "Full-Time",
-        role: emp.role ?? "Other",
-        department: emp.department ? String(emp.department.id) : "",
-        designation: emp.designation ? String(emp.designation.id) : "",
-        salary: emp.salary ?? "",
-        is_active: emp.is_active ?? true,
-      });
-
-      // load permissions if present
-      if (emp.permissions) {
-        try {
-          const parsed = typeof emp.permissions === "string" ? JSON.parse(emp.permissions) : emp.permissions;
-          const mapped: Record<string, PermissionSet> = {};
-          MODULES.forEach((m) => {
-            mapped[m] = {
-              read: !!parsed[m]?.read,
-              write: !!parsed[m]?.write,
-              create: !!parsed[m]?.create,
-              delete: !!parsed[m]?.delete,
-              import: !!parsed[m]?.import,
-              export: !!parsed[m]?.export,
-            };
-          });
-          setPermissions(mapped);
-          setPermissionsSelectAll(MODULES.every((m) => Object.values(mapped[m]).some(Boolean)));
-        } catch {
-          setPermissions({ ...defaultPermissions });
-          setPermissionsSelectAll(false);
-        }
-      } else {
-        setPermissions({ ...defaultPermissions });
-        setPermissionsSelectAll(false);
-      }
-
-      const el = document.getElementById("add_employee_modal");
-      if (el && (window as any).bootstrap) {
-        const modal = new (window as any).bootstrap.Modal(el as Element);
-        modal.show();
-      } else {
-        alert("Bootstrap JS not loaded; cannot open modal. Add bootstrap JS import to index.tsx.");
-      }
-    } catch (err) {
-      console.error("openEditModal error:", err);
-      alert("Failed to load employee data.");
-    }
-  };
-
-  // Photo change
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files[0]) setPhotoFile(files[0]);
-  };
-
-  // Toggle permission
-  const handlePermissionToggle = (module: string, key: keyof PermissionSet, value: boolean) => {
-    setPermissions((prev) => ({ ...prev, [module]: { ...(prev[module] || { read: false, write: false, create: false, delete: false, import: false, export: false }), [key]: value } }));
-  };
-
-  const handleSelectAllPermissions = (value: boolean) => {
-    const p: Record<string, PermissionSet> = {};
-    MODULES.forEach((m) => (p[m] = { read: value, write: value, create: value, delete: value, import: value, export: value }));
-    setPermissions(p);
-    setPermissionsSelectAll(value);
-  };
-
-  // Submit create/edit
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const payload = new FormData();
-      Object.keys(formData).forEach((k) => {
-        const v = formData[k];
-        if (v !== undefined && v !== null) payload.append(k, String(v));
-      });
-      if (photoFile) payload.append("photo", photoFile);
-      payload.append("permissions", JSON.stringify(permissions));
-
-      if (editingId) {
-        await axios.put(`${API_EMP}${editingId}/`, payload, { headers: { "Content-Type": "multipart/form-data" } });
-        alert("Employee updated successfully.");
-      } else {
-        await axios.post(API_EMP, payload, { headers: { "Content-Type": "multipart/form-data" } });
-        alert("Employee created successfully.");
-      }
-
-      await fetchEmployees();
-
-      const el = document.getElementById("add_employee_modal");
-      if (el && (window as any).bootstrap) {
-        const current = (window as any).bootstrap.Modal.getInstance(el as Element) || new (window as any).bootstrap.Modal(el as Element);
-        current.hide();
-      }
-    } catch (err) {
-      console.error("submit error:", err);
-      alert("Save failed. See console.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  // NEW: navigate to edit page (we will implement edit page as add with id param)
+  const goToEditPage = (id: number) => {
+    navigate(`/employee-add?id=${id}`);
   };
 
   // CSV export
@@ -364,7 +193,6 @@ const EmployeeList: React.FC = () => {
   return (
     <div className="page-wrapper">
       <div className="content container-fluid">
-
         {/* Header */}
         <div className="page-header d-flex justify-content-between align-items-center mb-3">
           <div>
@@ -387,7 +215,7 @@ const EmployeeList: React.FC = () => {
             </div>
 
             <div>
-              <button className="btn btn-primary" onClick={openAddModal}><i className="ti ti-plus" /> Add Employee</button>
+              <button className="btn btn-primary" onClick={goToAddPage}><i className="ti ti-plus" /> Add Employee</button>
             </div>
           </div>
         </div>
@@ -493,7 +321,7 @@ const EmployeeList: React.FC = () => {
                         <td><span className={`badge ${e.is_active ? "bg-success" : "bg-secondary"}`}>{e.is_active ? "Active" : "Inactive"}</span></td>
                         <td>
                           <button className="btn btn-sm btn-outline-light me-1" onClick={() => navigate(`/employee-details?id=${e.id}`)}>View</button>
-                          <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => openEditModal(e.id)}>Edit</button>
+                          <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => goToEditPage(e.id)}>Edit</button>
                           <button className="btn btn-sm btn-danger" onClick={() => handleDelete(e.id)}>Delete</button>
                         </td>
                       </tr>
@@ -503,7 +331,7 @@ const EmployeeList: React.FC = () => {
                 </table>
               </div>
 
-              <div className="d-flex justify-content-between align-items-center mt-3">
+              <div className="d-flex justify-content-between alignItems-center mt-3">
                 <div>
                   <button className="btn btn-outline-light btn-sm me-2" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>Prev</button>
                   <button className="btn btn-outline-light btn-sm" onClick={() => setPage(Math.min(pageCount, page + 1))} disabled={page === pageCount}>Next</button>
@@ -521,7 +349,7 @@ const EmployeeList: React.FC = () => {
                   <h5 className="mt-2">{smallName(e)}</h5>
                   <p className="mb-1"><small className="badge bg-light text-dark">{e.designation?.title ?? ""}</small></p>
                   <div className="d-flex justify-content-center gap-2">
-                    <button className="btn btn-sm btn-outline-secondary" onClick={() => openEditModal(e.id)}>Edit</button>
+                    <button className="btn btn-sm btn-outline-secondary" onClick={() => goToEditPage(e.id)}>Edit</button>
                     <button className="btn btn-sm btn-danger" onClick={() => handleDelete(e.id)}>Delete</button>
                   </div>
                 </div>
@@ -532,138 +360,6 @@ const EmployeeList: React.FC = () => {
         )}
 
       </div>
-
-      {/* Add/Edit Modal */}
-      <div className="modal fade" id="add_employee_modal" tabIndex={-1} aria-hidden="true">
-        <div className="modal-dialog modal-xl modal-dialog-centered">
-          <div className="modal-content bg-dark text-light">
-            <form onSubmit={handleSubmit}>
-              <div className="modal-header border-0">
-                <h5 className="modal-title">{editingId ? "Edit Employee" : "Add Employee"}</h5>
-                <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" />
-              </div>
-              <div className="modal-body">
-                <ul className="nav nav-tabs mb-3">
-                  <li className="nav-item"><button className="nav-link active" data-bs-toggle="tab" data-bs-target="#basicTab" type="button">Basic Information</button></li>
-                  <li className="nav-item"><button className="nav-link" data-bs-toggle="tab" data-bs-target="#permTab" type="button">Permissions</button></li>
-                </ul>
-
-                <div className="tab-content">
-                  <div className="tab-pane fade show active" id="basicTab">
-                    <div className="row g-3">
-                      <div className="col-md-4">
-                        <label className="form-label">Profile Photo</label>
-                        <input type="file" className="form-control form-control-sm" accept="image/*" onChange={handlePhotoChange} />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Employee ID</label>
-                        <input className="form-control" value={formData.emp_code || ""} onChange={(e) => setFormData({ ...formData, emp_code: e.target.value })} required />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">First Name</label>
-                        <input className="form-control" value={formData.first_name || ""} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} required />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Last Name</label>
-                        <input className="form-control" value={formData.last_name || ""} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Email</label>
-                        <input type="email" className="form-control" value={formData.email || ""} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Phone</label>
-                        <input className="form-control" value={formData.phone || ""} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Department</label>
-                        <select className="form-select" value={formData.department || ""} onChange={(e) => setFormData({ ...formData, department: e.target.value })}>
-                          <option value="">Select</option>
-                          {departments.map((d) => <option key={d.id} value={String(d.id)}>{d.name}</option>)}
-                        </select>
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Designation</label>
-                        <select className="form-select" value={formData.designation || ""} onChange={(e) => setFormData({ ...formData, designation: e.target.value })}>
-                          <option value="">Select</option>
-                          {designations.map((d) => <option key={d.id} value={String(d.id)}>{d.title}</option>)}
-                        </select>
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Joining Date</label>
-                        <input type="date" className="form-control" value={formData.joining_date || ""} onChange={(e) => setFormData({ ...formData, joining_date: e.target.value })} />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Salary</label>
-                        <input className="form-control" value={formData.salary || ""} onChange={(e) => setFormData({ ...formData, salary: e.target.value })} />
-                      </div>
-
-                      <div className="col-md-12">
-                        <label className="form-label">Address</label>
-                        <textarea className="form-control" rows={3} value={formData.address || ""} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="tab-pane fade" id="permTab">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <strong>Permissions</strong>
-                      <label className="form-check form-switch">
-                        <input className="form-check-input" type="checkbox" checked={permissionsSelectAll} onChange={(e) => handleSelectAllPermissions(e.target.checked)} />
-                        <span className="ms-2">Select All</span>
-                      </label>
-                    </div>
-
-                    <div className="table-responsive">
-                      <table className="table table-dark table-hover">
-                        <thead>
-                          <tr>
-                            <th>Module</th>
-                            <th>Read</th>
-                            <th>Write</th>
-                            <th>Create</th>
-                            <th>Delete</th>
-                            <th>Import</th>
-                            <th>Export</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {MODULES.map((m) => (
-                            <tr key={m}>
-                              <td>{m}</td>
-                              {(["read", "write", "create", "delete", "import", "export"] as (keyof PermissionSet)[]).map((p) => (
-                                <td key={p}>
-                                  <input type="checkbox" checked={!!permissions[m]?.[p]} onChange={(ev) => handlePermissionToggle(m, p, (ev.target as HTMLInputElement).checked)} />
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              <div className="modal-footer border-0">
-                <button type="button" className="btn btn-light" data-bs-dismiss="modal" disabled={isSubmitting}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? "Saving..." : (editingId ? "Update Employee" : "Add Employee")}</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
     </div>
   );
 };

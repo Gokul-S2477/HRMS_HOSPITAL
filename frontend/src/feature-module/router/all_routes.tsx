@@ -36,9 +36,6 @@ export const all_routes = {
   tablesBasic: "/tables-basic",
   notes: "/notes",
 
-
-
-
   //page module
   starter: "/starter",
   profile: "/pages/profile",
@@ -172,16 +169,13 @@ export const all_routes = {
   //Maps
   mapLeaflet: "/map-leaflet",
 
-
-
-
   // settings routes
   customFields: "/app-settings/custom-fields",
   invoiceSettings: "/app-settings/invoice-settings",
 
   currencies: "/financial-settings/currencies",
   paymentGateways: "/financial-settings/payment-gateways",
-  taxRates: "/financial-settings/tax-rates", 
+  taxRates: "/financial-settings/tax-rates",
 
   schoolSettings: "/academic-settings/school-settings",
   religion: "/academic-settings/religion",
@@ -228,7 +222,6 @@ export const all_routes = {
   languageWeb: "/website-settings/language-web",
   localization: "/website-settings/localization",
 
-
   //content routes
   pages: "/content/pages",
   countries: "countries",
@@ -236,10 +229,6 @@ export const all_routes = {
   cities: "/content/cities",
   testimonials: "testimonials",
   faq: "faq",
-
-
-
-
 
   // blog
   blogs: "blogs",
@@ -261,7 +250,6 @@ export const all_routes = {
   ticketDetails: "/tickets/ticket-details",
 
   // Performance
-
   performanceIndicator: "/performance/performance-indicator",
   performanceReview: "/performance/performance-review",
   performanceAppraisal: "/preformance/performance-appraisal",
@@ -269,7 +257,6 @@ export const all_routes = {
   goalType: "/performance/goal-type",
 
   // Training
-
   trainingList: "/training/training-list",
   trainers: "/training/trainers",
   trainingType: "/training/training-type",
@@ -278,8 +265,6 @@ export const all_routes = {
   membershipplan: "/membership-plans",
   membershipAddon: "/membership-addons",
   membershipTransaction: "/membership-transactions",
-
-
 
   layoutDefault: "/layout-default",
   layoutMini: "/layout-mini",
@@ -307,7 +292,7 @@ export const all_routes = {
   accountsTransactions: "/accounts/accounts-transactions",
   expense: "/accounts/expense",
   expenseCategory: "/accounts/expense-category",
-  
+
   addInvoice: "/accounts/add-invoice",
   editInvoice: "/accounts/edit-invoice",
   categories: "/accounting/categories",
@@ -315,11 +300,7 @@ export const all_routes = {
   budgetexpenses: "/accounting/budgets-expenses",
   budgetrevenues: "accounting/budget-revenues",
 
-
-
-
   //crm
-
   clientgrid: "/clients-grid",
   clientlist: "/clients",
   clientdetils: "/clients-details",
@@ -343,7 +324,7 @@ export const all_routes = {
   leadsDetails: "/leads-details",
   pipeline: "/pipeline",
   analytics: "/analytics",
-  activities: "/",
+  activities: "/activities",
 
   //HRM
   employeeList: "/employees",
@@ -363,6 +344,16 @@ export const all_routes = {
   promotion: "/promotion",
   resignation: "/resignation",
   termination: "/termination",
+  employeeAdd: "/employee-add",
+
+  // added missing HR/Admin/support routes referenced in code
+  activity: "/activity",                   // <--- ADDED (used by header/sidebar)
+  knowledgebase: "/knowledgebase",         // <--- ADDED
+  assetList: "/assets",                    // <--- ADDED
+  assetCategories: "/asset-categories",    // <--- ADDED
+  users: "/users",                         // <--- ADDED
+  rolePermission: "/roles-permissions",    // <--- ADDED (alias for rolesPermissions)
+
   // RECRUITMENT
   jobgrid: "/job-grid",
   joblist: "/job-list",
@@ -370,6 +361,7 @@ export const all_routes = {
   candidateslist: "/candidates",
   candidateskanban: "/candidates-kanban",
   refferal: "/refferals",
+
   //FINANCE & ACCOUNTS
   estimate: "/estimates",
   invoices:"/invoices",
@@ -386,14 +378,15 @@ export const all_routes = {
   payrollAddition: "/payroll",
   payrollOvertime: "/payroll-overtime",
   payrollDeduction: "/payroll-deduction",
+
   //ADMINISTRATION
-  knowledgebase: "/knowledgebase",
-  activity: "/activity",
-  users: "/users",
-  rolePermission: "/roles-permissions",
-  permissionpage: "/permission",
-  assetCategories: "/asset-categories",
-  assetList: "/assets",
+//  knowledgebase: "/knowledgebase",
+  activityPage: "/activity",
+ // users: "/users",
+//  rolePermission: "/roles-permissions",
+//  assetCategories: "/asset-categories",
+ // assetList: "/assets",
+
   //Report
   expensesreport: "/expenses-report",
   invoicereport: "/invoice-report",
@@ -407,8 +400,4 @@ export const all_routes = {
   attendancereport: "/attendance-report",
   leavereport: "/leave-report",
   dailyreport: "/daily-report",
-
-
-
-
 };
