@@ -1,121 +1,171 @@
 # backend/employees/views.py
+
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
 from datetime import date, timedelta
+from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Employee, Department, Designation
-from .serializers import EmployeeSerializer, DepartmentSerializer, DesignationSerializer
+from .models import Employee, Department, Designation, Policy
+from .serializers import (
+    EmployeeSerializer,
+    DepartmentSerializer,
+    DesignationSerializer,
+    PolicySerializer,
+)
 
 
+# =====================================================
+#                EMPLOYEE VIEWSET
+# =====================================================
 class EmployeeViewSet(viewsets.ModelViewSet):
-    queryset = Employee.objects.all().select_related("department", "designation", "reporting_to")
+    queryset = Employee.objects.all().select_related(
+        "department", "designation", "reporting_to"
+    )
     serializer_class = EmployeeSerializer
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = [
-        'emp_code', 'first_name', 'middle_name', 'last_name',
-        'email', 'phone', 'alternate_phone'
+        "emp_code", "first_name", "middle_name", "last_name",
+        "email", "phone", "alternate_phone"
     ]
-    ordering_fields = ['joining_date', 'first_name', 'last_name']
+    ordering_fields = ["joining_date", "first_name", "last_name"]
 
-    # ================================
-    #  CUSTOM FILTERS
-    # ================================
     def get_queryset(self):
         qs = Employee.objects.all().select_related("department", "designation")
 
-        department = self.request.query_params.get("department")
-        designation = self.request.query_params.get("designation")
+        dept = self.request.query_params.get("department")
+        desig = this = self.request.query_params.get("designation")
         active = self.request.query_params.get("active")
-        employment_type = self.request.query_params.get("employment_type")
+        emp_type = self.request.query_params.get("employment_type")
 
-        if department:
-            qs = qs.filter(department_id=department)
-        if designation:
-            qs = qs.filter(designation_id=designation)
+        if dept:
+            qs = qs.filter(department_id=dept)
+        if desig:
+            qs = qs.filter(designation_id=desig)
         if active in ["true", "1"]:
             qs = qs.filter(is_active=True)
         if active in ["false", "0"]:
             qs = qs.filter(is_active=False)
-        if employment_type:
-            qs = qs.filter(employment_type=employment_type)
+        if emp_type:
+            qs = qs.filter(employment_type=emp_type)
 
         return qs
 
-    # ================================
-    #  CUSTOM ACTIONS
-    # ================================
-    @action(detail=False, methods=['get'])
+    # ---- Birthday in next 7 days ----
+    @action(detail=False, methods=["get"])
     def birthdays(self, request):
-        """Employees whose birthdays fall in the next 7 days."""
         today = date.today()
         end = today + timedelta(days=7)
-
         results = []
-        for emp in Employee.objects.exclude(date_of_birth__isnull=True):
-            dob_this_year = emp.date_of_birth.replace(year=today.year)
 
-            if today <= dob_this_year <= end:
+        for emp in Employee.objects.exclude(date_of_birth__isnull=True):
+            dob = emp.date_of_birth.replace(year=today.year)
+            if today <= dob <= end:
                 results.append(emp)
 
-        serializer = EmployeeSerializer(results, many=True, context={'request': request})
-        return Response(serializer.data)
+        return Response(EmployeeSerializer(results, many=True).data)
 
-    @action(detail=False, methods=['get'])
+    # ---- Monthly birthdays ----
+    @action(detail=False, methods=["get"])
     def upcoming_birthdays(self, request):
-        """Birthdays in the current month."""
         today = date.today()
         qs = Employee.objects.filter(date_of_birth__month=today.month)
+        return Response(EmployeeSerializer(qs, many=True).data)
 
-        serializer = EmployeeSerializer(qs, many=True, context={'request': request})
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'])
+    # ---- New hires ----
+    @action(detail=False, methods=["get"])
     def new_hires(self, request):
-        """Employees hired in the last 30 days."""
         cutoff = timezone.now().date() - timedelta(days=30)
         qs = Employee.objects.filter(joining_date__gte=cutoff)
+        return Response(EmployeeSerializer(qs, many=True).data)
 
-        serializer = EmployeeSerializer(qs, many=True, context={'request': request})
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'])
+    # ---- Employee count ----
+    @action(detail=False, methods=["get"])
     def count(self, request):
-        """Returns total employees, active employees, inactive employees."""
-        total = Employee.objects.count()
-        active = Employee.objects.filter(is_active=True).count()
-        inactive = Employee.objects.filter(is_active=False).count()
-
         return Response({
-            "total": total,
-            "active": active,
-            "inactive": inactive
+            "total": Employee.objects.count(),
+            "active": Employee.objects.filter(is_active=True).count(),
+            "inactive": Employee.objects.filter(is_active=False).count(),
         })
 
-    @action(detail=False, methods=['get'])
+    # ---- Department employee count ----
+    @action(detail=False, methods=["get"])
     def department_counts(self, request):
-        """Returns employee count grouped by department."""
-        data = {}
-        for dept in Department.objects.all():
-            data[dept.name] = dept.employees.count()
-
+        data = {str(d.id): d.employees.count() for d in Department.objects.all()}
         return Response(data)
 
 
-# ================================
-#   PUBLIC ENDPOINTS FOR REACT
-# ================================
+# =====================================================
+#               DEPARTMENT VIEWSET
+# =====================================================
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [AllowAny]   # Allow POST, DELETE without auth
+    permission_classes = [AllowAny]
 
 
+# =====================================================
+#               DESIGNATION VIEWSET
+# =====================================================
 class DesignationViewSet(viewsets.ModelViewSet):
     queryset = Designation.objects.all()
     serializer_class = DesignationSerializer
-    permission_classes = [AllowAny]   # Allow POST, DELETE without auth
+    permission_classes = [AllowAny]
+
+
+# =====================================================
+#               POLICY VIEWSET
+# =====================================================
+class PolicyViewSet(viewsets.ModelViewSet):
+    """
+    Handles:
+    - Add policy (file upload supported)
+    - Edit policy
+    - Delete policy
+    - Search, sort, filter by department
+    """
+    queryset = Policy.objects.all().select_related("department")
+    serializer_class = PolicySerializer
+
+    parser_classes = (MultiPartParser, FormParser)
+
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+
+    # 🔥 FIXED: Search by correct model field "title" (NOT name)
+    search_fields = ["title", "description"]
+
+    # 🔥 FIXED: Order by correct fields
+    ordering_fields = ["created_at", "appraisal_date", "title"]
+
+    filterset_fields = ["department"]
+
+    def get_queryset(self):
+        qs = Policy.objects.all().select_related("department")
+
+        dept = self.request.query_params.get("department")
+        frm = self.request.query_params.get("from")
+        to = self.request.query_params.get("to")
+
+        # Department filter
+        if dept and dept != "all":
+            try:
+                qs = qs.filter(department_id=int(dept))
+            except:
+                pass
+
+        # Filter by created_at range
+        if frm and to:
+            qs = qs.filter(created_at__date__range=[frm, to])
+
+        return qs
+
+    # Enable file upload on create/update
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)

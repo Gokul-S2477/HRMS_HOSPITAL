@@ -47,11 +47,16 @@ const EmployeeAdd: React.FC = () => {
 
   const [permissionsSelectAll, setPermissionsSelectAll] = useState(false);
 
+  // FIXED → use department_id & designation_id (no UI change)
   const [formData, setFormData] = useState<any>({
     emp_code: "", first_name: "", middle_name: "", last_name: "",
     email: "", phone: "", alternate_phone: "", address: "",
     joining_date: "", employment_type: "Full-Time", role: "Other",
-    department: "", designation: "", salary: "", is_active: true,
+
+    department_id: "",        // FIXED: previously `department`
+    designation_id: "",       // FIXED: previously `designation`
+
+    salary: "", is_active: true,
     gender: "", date_of_birth: "", emergency_contact_name: "",
     emergency_contact_number: "", reporting_to: "",
     national_id: "", blood_group: "", marital_status: "Single",
@@ -111,8 +116,11 @@ const EmployeeAdd: React.FC = () => {
           joining_date: emp.joining_date ?? "",
           employment_type: emp.employment_type ?? "Full-Time",
           role: emp.role ?? "Other",
-          department: emp.department ? String(emp.department.id) : "",
-          designation: emp.designation ? String(emp.designation.id) : "",
+
+          // FIXED: prefill FK ids into department_id & designation_id
+          department_id: emp.department ? String(emp.department.id) : "",
+          designation_id: emp.designation ? String(emp.designation.id) : "",
+
           salary: emp.salary ?? "",
           is_active: emp.is_active ?? true,
           gender: emp.gender ?? "",
@@ -199,7 +207,7 @@ const EmployeeAdd: React.FC = () => {
   const cleanFormValue = (key: string, value: any) => {
     if (value === "" || value === null || value === undefined) {
       // DO NOT SEND empty foreign keys
-      if (["department", "designation", "reporting_to"].includes(key)) {
+      if (["department_id", "designation_id", "reporting_to"].includes(key)) {
         return null;
       }
     }
@@ -390,8 +398,8 @@ const EmployeeAdd: React.FC = () => {
                   <div className="col-md-3">
                     <label className="form-label">Department</label>
                     <select className="form-select"
-                      value={formData.department}
-                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                      value={formData.department_id}
+                      onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
                     >
                       <option value="">Select</option>
                       {departments.map((d) => (
@@ -404,8 +412,8 @@ const EmployeeAdd: React.FC = () => {
                   <div className="col-md-3">
                     <label className="form-label">Designation</label>
                     <select className="form-select"
-                      value={formData.designation}
-                      onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                      value={formData.designation_id}
+                      onChange={(e) => setFormData({ ...formData, designation_id: e.target.value })}
                     >
                       <option value="">Select</option>
                       {designations.map((d) => (

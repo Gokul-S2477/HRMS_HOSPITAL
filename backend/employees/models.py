@@ -1,7 +1,10 @@
-# backend/employees/models.py
 from django.db import models
 from django.utils import timezone
 
+
+# ======================================
+#            DEPARTMENT
+# ======================================
 class Department(models.Model):
     name = models.CharField(max_length=120, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -10,6 +13,9 @@ class Department(models.Model):
         return self.name
 
 
+# ======================================
+#            DESIGNATION
+# ======================================
 class Designation(models.Model):
     title = models.CharField(max_length=120, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -18,7 +24,11 @@ class Designation(models.Model):
         return self.title
 
 
+# ======================================
+#            EMPLOYEE
+# ======================================
 class Employee(models.Model):
+
     EMPLOYEE_ROLES = [
         ('Doctor', 'Doctor'),
         ('Nurse', 'Nurse'),
@@ -62,7 +72,7 @@ class Employee(models.Model):
     emergency_contact_name = models.CharField(max_length=120, blank=True, null=True)
     emergency_contact_number = models.CharField(max_length=15, blank=True, null=True)
 
-    # Work Information
+    # Work Info
     role = models.CharField(max_length=60, choices=EMPLOYEE_ROLES, default='Other')
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees")
     designation = models.ForeignKey(Designation, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees")
@@ -70,12 +80,12 @@ class Employee(models.Model):
     employment_type = models.CharField(max_length=30, choices=EMPLOYMENT_TYPES, default='Full-Time')
     reporting_to = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name="subordinates")
 
-    # Optional HR Fields
+    # HR Info
     national_id = models.CharField(max_length=120, blank=True, null=True)
     blood_group = models.CharField(max_length=10, blank=True, null=True)
     marital_status = models.CharField(max_length=15, choices=MARITAL_STATUS, default='Single')
 
-    # Work Shift Info (useful for scheduling)
+    # Work Shift
     work_shift = models.CharField(max_length=120, blank=True, null=True)
     work_location = models.CharField(max_length=120, blank=True, null=True)
 
@@ -85,7 +95,7 @@ class Employee(models.Model):
     # Payroll
     salary = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
 
-    # Status Flags
+    # Status
     is_active = models.BooleanField(default=True)
 
     # Audit
@@ -98,3 +108,33 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name or ''} ({self.emp_code})"
+
+
+# ======================================
+#            POLICY
+# ======================================
+class Policy(models.Model):
+    # Make it match frontend naming: "title"
+    title = models.CharField(max_length=200)
+
+    appraisal_date = models.DateField(null=True, blank=True)
+
+    # Department filter ― null = All Departments
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="policies"
+    )
+
+    description = models.TextField(blank=True, null=True)
+    file = models.FileField(upload_to="policies/", null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
