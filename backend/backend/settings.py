@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     # Your apps
     "employees",
     "attendance",
-    "payroll",
     "users",
     "recruitment",
     "assets",
