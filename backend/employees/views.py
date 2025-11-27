@@ -1,5 +1,3 @@
-# backend/employees/views.py
-
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -38,24 +36,28 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         qs = Employee.objects.all().select_related("department", "designation")
 
         dept = self.request.query_params.get("department")
-        desig = this = self.request.query_params.get("designation")
+        desig = self.request.query_params.get("designation")    # FIXED
         active = self.request.query_params.get("active")
         emp_type = self.request.query_params.get("employment_type")
 
         if dept:
             qs = qs.filter(department_id=dept)
+
         if desig:
             qs = qs.filter(designation_id=desig)
+
         if active in ["true", "1"]:
             qs = qs.filter(is_active=True)
+
         if active in ["false", "0"]:
             qs = qs.filter(is_active=False)
+
         if emp_type:
             qs = qs.filter(employment_type=emp_type)
 
         return qs
 
-    # ---- Birthday in next 7 days ----
+    # ---- Birthdays next 7 days ----
     @action(detail=False, methods=["get"])
     def birthdays(self, request):
         today = date.today()
@@ -105,7 +107,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]     # Allows React to get list
 
 
 # =====================================================
@@ -121,26 +123,24 @@ class DesignationViewSet(viewsets.ModelViewSet):
 #               POLICY VIEWSET
 # =====================================================
 class PolicyViewSet(viewsets.ModelViewSet):
-    """
-    Handles:
-    - Add policy (file upload supported)
-    - Edit policy
-    - Delete policy
-    - Search, sort, filter by department
-    """
     queryset = Policy.objects.all().select_related("department")
     serializer_class = PolicySerializer
 
     parser_classes = (MultiPartParser, FormParser)
 
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend
+    ]
 
-    # 🔥 FIXED: Search by correct model field "title" (NOT name)
+    # Search by title + description
     search_fields = ["title", "description"]
 
-    # 🔥 FIXED: Order by correct fields
+    # Sorting fields
     ordering_fields = ["created_at", "appraisal_date", "title"]
 
+    # Department filtering
     filterset_fields = ["department"]
 
     def get_queryset(self):
@@ -150,20 +150,20 @@ class PolicyViewSet(viewsets.ModelViewSet):
         frm = self.request.query_params.get("from")
         to = self.request.query_params.get("to")
 
-        # Department filter
+        # Filter by department
         if dept and dept != "all":
             try:
                 qs = qs.filter(department_id=int(dept))
-            except:
+            except ValueError:
                 pass
 
-        # Filter by created_at range
+        # Filter by created_at date range
         if frm and to:
             qs = qs.filter(created_at__date__range=[frm, to])
 
         return qs
 
-    # Enable file upload on create/update
+    # File upload supported
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 

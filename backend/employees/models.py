@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 
 # ======================================
@@ -28,7 +27,6 @@ class Designation(models.Model):
 #            EMPLOYEE
 # ======================================
 class Employee(models.Model):
-
     EMPLOYEE_ROLES = [
         ('Doctor', 'Doctor'),
         ('Nurse', 'Nurse'),
@@ -74,11 +72,17 @@ class Employee(models.Model):
 
     # Work Info
     role = models.CharField(max_length=60, choices=EMPLOYEE_ROLES, default='Other')
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees")
-    designation = models.ForeignKey(Designation, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees")
+    department = models.ForeignKey(
+        Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees"
+    )
+    designation = models.ForeignKey(
+        Designation, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees"
+    )
     joining_date = models.DateField(null=True, blank=True)
     employment_type = models.CharField(max_length=30, choices=EMPLOYMENT_TYPES, default='Full-Time')
-    reporting_to = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name="subordinates")
+    reporting_to = models.ForeignKey(
+        'self', null=True, blank=True, on_delete=models.SET_NULL, related_name="subordinates"
+    )
 
     # HR Info
     national_id = models.CharField(max_length=120, blank=True, null=True)
@@ -111,15 +115,16 @@ class Employee(models.Model):
 
 
 # ======================================
-#            POLICY
+#                 POLICY
 # ======================================
 class Policy(models.Model):
-    # Make it match frontend naming: "title"
+    # SmartHR uses 'title', so we match frontend
     title = models.CharField(max_length=200)
 
+    # Optional appraisal date
     appraisal_date = models.DateField(null=True, blank=True)
 
-    # Department filter ― null = All Departments
+    # Department filter — null means “Applies to all departments”
     department = models.ForeignKey(
         Department,
         on_delete=models.SET_NULL,

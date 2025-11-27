@@ -25,19 +25,22 @@ class DesignationSerializer(serializers.ModelSerializer):
 # =====================================
 class EmployeeSerializer(serializers.ModelSerializer):
 
+    # READ-ONLY nested
     department = DepartmentSerializer(read_only=True)
     designation = DesignationSerializer(read_only=True)
 
+    # WRITE-ONLY fields
     department_id = serializers.PrimaryKeyRelatedField(
         queryset=Department.objects.all(),
-        source='department',
+        source="department",
         write_only=True,
         allow_null=True,
         required=False
     )
+
     designation_id = serializers.PrimaryKeyRelatedField(
         queryset=Designation.objects.all(),
-        source='designation',
+        source="designation",
         write_only=True,
         allow_null=True,
         required=False
@@ -53,28 +56,42 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = Employee
         fields = [
             # Basic Info
-            'id', 'emp_code', 'first_name', 'middle_name', 'last_name',
-            'gender', 'date_of_birth',
+            'id',
+            'emp_code',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'gender',
+            'date_of_birth',
 
-            # Contact
-            'email', 'phone', 'alternate_phone', 'address',
+            # Contact Info
+            'email',
+            'phone',
+            'alternate_phone',
+            'address',
 
-            # Emergency
-            'emergency_contact_name', 'emergency_contact_number',
+            # Emergency Contact
+            'emergency_contact_name',
+            'emergency_contact_number',
 
             # Job Info
             'role',
-            'department', 'department_id',
-            'designation', 'designation_id',
+            'department',
+            'department_id',
+            'designation',
+            'designation_id',
             'joining_date',
             'employment_type',
             'reporting_to',
 
-            # Extra HR info
-            'national_id', 'blood_group', 'marital_status',
-            'work_shift', 'work_location',
+            # Extra HR Info
+            'national_id',
+            'blood_group',
+            'marital_status',
+            'work_shift',
+            'work_location',
 
-            # File
+            # Photo
             'photo',
 
             # Payroll
@@ -84,27 +101,28 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'is_active',
 
             # Audit
-            'created_by', 'created_at', 'updated_at',
+            'created_by',
+            'created_at',
+            'updated_at',
         ]
         read_only_fields = ('created_at', 'updated_at')
 
 
 # =====================================
-#           POLICY SERIALIZER
+#        POLICY SERIALIZER
 # =====================================
 class PolicySerializer(serializers.ModelSerializer):
-
-    # Read-only department details
+    # Nested read-only department details
     department_detail = DepartmentSerializer(source="department", read_only=True)
 
     class Meta:
         model = Policy
         fields = [
             "id",
-            "title",            # 🟢 FIXED (was `name`)
+            "title",
             "appraisal_date",
-            "department",       # write
-            "department_detail",  # read
+            "department",          # ForeignKey (write)
+            "department_detail",   # Read-only nested object
             "description",
             "file",
             "created_at",

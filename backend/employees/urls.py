@@ -11,15 +11,15 @@ from .views import (
 router = DefaultRouter()
 
 # Employee CRUD
-router.register(r'employees', EmployeeViewSet, basename='employee')
+router.register(r'employees', EmployeeViewSet, basename='employees')
 
-# Departments
-router.register(r'departments', DepartmentViewSet, basename='department')
+# Departments CRUD
+router.register(r'departments', DepartmentViewSet, basename='departments')
 
-# Designations
-router.register(r'designations', DesignationViewSet, basename='designation')
+# Designations CRUD
+router.register(r'designations', DesignationViewSet, basename='designations')
 
-# Policies
-router.register(r'policies', PolicyViewSet, basename='policy')
+# Policies CRUD
+router.register(r'policies', PolicyViewSet, basename='policies')
 
 urlpatterns = router.urls
