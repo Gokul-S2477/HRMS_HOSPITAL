@@ -36,7 +36,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         qs = Employee.objects.all().select_related("department", "designation")
 
         dept = self.request.query_params.get("department")
-        desig = self.request.query_params.get("designation")    # FIXED
+        desig = self.request.query_params.get("designation")
         active = self.request.query_params.get("active")
         emp_type = self.request.query_params.get("employment_type")
 
@@ -48,8 +48,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
         if active in ["true", "1"]:
             qs = qs.filter(is_active=True)
-
-        if active in ["false", "0"]:
+        elif active in ["false", "0"]:
             qs = qs.filter(is_active=False)
 
         if emp_type:
@@ -57,35 +56,35 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
         return qs
 
-    # ---- Birthdays next 7 days ----
+    # ===== birthday in next 7 days =====
     @action(detail=False, methods=["get"])
     def birthdays(self, request):
         today = date.today()
         end = today + timedelta(days=7)
-        results = []
+        res = []
 
         for emp in Employee.objects.exclude(date_of_birth__isnull=True):
             dob = emp.date_of_birth.replace(year=today.year)
             if today <= dob <= end:
-                results.append(emp)
+                res.append(emp)
 
-        return Response(EmployeeSerializer(results, many=True).data)
+        return Response(EmployeeSerializer(res, many=True).data)
 
-    # ---- Monthly birthdays ----
+    # ===== birthday this month =====
     @action(detail=False, methods=["get"])
     def upcoming_birthdays(self, request):
         today = date.today()
         qs = Employee.objects.filter(date_of_birth__month=today.month)
         return Response(EmployeeSerializer(qs, many=True).data)
 
-    # ---- New hires ----
+    # ===== new hires =====
     @action(detail=False, methods=["get"])
     def new_hires(self, request):
         cutoff = timezone.now().date() - timedelta(days=30)
         qs = Employee.objects.filter(joining_date__gte=cutoff)
         return Response(EmployeeSerializer(qs, many=True).data)
 
-    # ---- Employee count ----
+    # ===== employee counts =====
     @action(detail=False, methods=["get"])
     def count(self, request):
         return Response({
@@ -94,7 +93,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             "inactive": Employee.objects.filter(is_active=False).count(),
         })
 
-    # ---- Department employee count ----
+    # ===== department employee count =====
     @action(detail=False, methods=["get"])
     def department_counts(self, request):
         data = {str(d.id): d.employees.count() for d in Department.objects.all()}
@@ -102,25 +101,29 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
 
 # =====================================================
-#               DEPARTMENT VIEWSET
+#                DEPARTMENT VIEWSET
 # =====================================================
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [AllowAny]     # Allows React to get list
-
-
-# =====================================================
-#               DESIGNATION VIEWSET
-# =====================================================
-class DesignationViewSet(viewsets.ModelViewSet):
-    queryset = Designation.objects.all()
-    serializer_class = DesignationSerializer
     permission_classes = [AllowAny]
 
 
 # =====================================================
-#               POLICY VIEWSET
+#                DESIGNATION VIEWSET
+# =====================================================
+class DesignationViewSet(viewsets.ModelViewSet):
+    queryset = Designation.objects.all().select_related("department")
+    serializer_class = DesignationSerializer
+    permission_classes = [AllowAny]
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ["department"]
+    search_fields = ["title", "description"]
+
+
+# =====================================================
+#                POLICY VIEWSET
 # =====================================================
 class PolicyViewSet(viewsets.ModelViewSet):
     queryset = Policy.objects.all().select_related("department")
@@ -134,13 +137,8 @@ class PolicyViewSet(viewsets.ModelViewSet):
         DjangoFilterBackend
     ]
 
-    # Search by title + description
     search_fields = ["title", "description"]
-
-    # Sorting fields
     ordering_fields = ["created_at", "appraisal_date", "title"]
-
-    # Department filtering
     filterset_fields = ["department"]
 
     def get_queryset(self):
@@ -150,20 +148,17 @@ class PolicyViewSet(viewsets.ModelViewSet):
         frm = self.request.query_params.get("from")
         to = self.request.query_params.get("to")
 
-        # Filter by department
         if dept and dept != "all":
             try:
                 qs = qs.filter(department_id=int(dept))
-            except ValueError:
+            except:
                 pass
 
-        # Filter by created_at date range
         if frm and to:
             qs = qs.filter(created_at__date__range=[frm, to])
 
         return qs
 
-    # File upload supported
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 

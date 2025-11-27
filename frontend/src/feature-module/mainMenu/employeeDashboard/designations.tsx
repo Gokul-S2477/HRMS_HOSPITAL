@@ -15,19 +15,11 @@ type Designation = {
   department_detail?: { id: number; name: string } | null;
 };
 
-type Employee = {
-  id: number;
-  first_name: string;
-  department?: { id: number; name?: string } | null;
-  designation?: { id: number; title?: string } | null;
-};
-
 const API_BASE = "http://localhost:8000/api";
 
 const DesignationsPage: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [showAdd, setShowAdd] = useState(false);
@@ -40,28 +32,26 @@ const DesignationsPage: React.FC = () => {
 
   const [search, setSearch] = useState("");
 
+  /** Axios with token */
   const axiosInstance = useMemo(() => {
     const inst = axios.create();
     const token = getToken ? getToken() : localStorage.getItem("token");
     if (token) inst.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    inst.defaults.headers.common["Content-Type"] = "application/json";
     return inst;
   }, []);
 
+  /** Load data */
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [dRes, deptRes, eRes] = await Promise.all([
+      const [desigRes, deptRes] = await Promise.all([
         axiosInstance.get(`${API_BASE}/designations/`),
         axiosInstance.get(`${API_BASE}/departments/`),
-        axiosInstance.get(`${API_BASE}/employees/?limit=2000`),
       ]);
 
-      setDesignations(dRes.data || []);
+      setDesignations(desigRes.data || []);
       setDepartments(deptRes.data || []);
-
-      const rawEmp = eRes.data;
-      const empList = Array.isArray(rawEmp) ? rawEmp : rawEmp.results || [];
-      setEmployees(empList);
     } catch (err) {
       console.error("Load failed", err);
     }
@@ -72,23 +62,34 @@ const DesignationsPage: React.FC = () => {
     loadAll();
   }, []);
 
+  /** Filter */
   const processed = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return designations.filter((d) =>
-      d.title.toLowerCase().includes(q) ||
-      (d.description || "").toLowerCase().includes(q)
+    return designations.filter(
+      (d) =>
+        d.title.toLowerCase().includes(q) ||
+        (d.description || "").toLowerCase().includes(q) ||
+        (d.department_detail?.name || "").toLowerCase().includes(q)
     );
   }, [designations, search]);
 
+  /** Reset form */
+  const resetForm = () => {
+    setTitleInput("");
+    setDescInput("");
+    setDeptInput("");
+  };
+
+  /** ADD (FIXED → send department_id) */
   const handleAdd = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!titleInput.trim()) return alert("Title required");
+    if (!titleInput.trim()) return alert("Title is required");
 
     try {
       await axiosInstance.post(`${API_BASE}/designations/`, {
         title: titleInput.trim(),
         description: descInput.trim() || "",
-        department: deptInput ? Number(deptInput) : null,
+        department_id: deptInput ? Number(deptInput) : null, // 🔥 FIXED
       });
 
       resetForm();
@@ -100,15 +101,16 @@ const DesignationsPage: React.FC = () => {
     }
   };
 
+  /** OPEN EDIT */
   const openEdit = (d: Designation) => {
     setEditing(d);
     setTitleInput(d.title);
-    setDescInput(d.description ?? "");
-    const dept = d.department ?? d.department_detail?.id ?? "";
-    setDeptInput(String(dept));
+    setDescInput(d.description || "");
+    setDeptInput(String(d.department || d.department_detail?.id || ""));
     setShowEdit(true);
   };
 
+  /** EDIT (FIXED → send department_id) */
   const handleEditSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!editing) return;
@@ -117,7 +119,7 @@ const DesignationsPage: React.FC = () => {
       await axiosInstance.patch(`${API_BASE}/designations/${editing.id}/`, {
         title: titleInput.trim(),
         description: descInput.trim() || "",
-        department: deptInput ? Number(deptInput) : null,
+        department_id: deptInput ? Number(deptInput) : null, // 🔥 FIXED
       });
 
       resetForm();
@@ -126,33 +128,29 @@ const DesignationsPage: React.FC = () => {
       loadAll();
     } catch (err) {
       console.error("Edit failed", err);
-      alert("Failed to update");
+      alert("Failed to update designation");
     }
   };
 
+  /** DELETE */
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Delete designation?")) return;
+    if (!window.confirm("Delete this designation?")) return;
+
     try {
       await axiosInstance.delete(`${API_BASE}/designations/${id}/`);
       loadAll();
     } catch (err) {
       console.error("Delete failed", err);
-      alert("Failed to delete");
+      alert("Delete failed");
     }
-  };
-
-  const resetForm = () => {
-    setTitleInput("");
-    setDescInput("");
-    setDeptInput("");
   };
 
   return (
     <div className="page-wrapper">
       <div className="content container-fluid">
 
-        {/* Header */}
-        <div className="page-header d-flex justify-content-between align-items-center mb-4">
+        {/* HEADER */}
+        <div className="page-header d-flex justify-content-between align-items-center">
           <div>
             <h3 className="page-title">Designations</h3>
             <ul className="breadcrumb">
@@ -171,13 +169,13 @@ const DesignationsPage: React.FC = () => {
             />
 
             <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
-              <i className="fa fa-plus me-2" /> Add Designation
+              <i className="fa fa-plus me-2"></i> Add Designation
             </button>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="card shadow-sm">
+        {/* TABLE */}
+        <div className="card">
           <div className="card-header bg-primary text-white">
             <h4 className="card-title mb-0">Designation List</h4>
           </div>
@@ -201,18 +199,14 @@ const DesignationsPage: React.FC = () => {
                 ) : (
                   processed.map((d) => (
                     <tr key={d.id}>
-                      <td className="fw-bold">{d.title}</td>
+                      <td>{d.title}</td>
                       <td>{d.description || "-"}</td>
                       <td>{d.department_detail?.name || "-"}</td>
 
                       <td className="text-center">
-                        <button
-                          className="btn btn-sm btn-light me-2"
-                          onClick={() => openEdit(d)}
-                        >
+                        <button className="btn btn-sm btn-light me-2" onClick={() => openEdit(d)}>
                           <i className="fa fa-edit"></i>
                         </button>
-
                         <button
                           className="btn btn-sm btn-danger"
                           onClick={() => handleDelete(d.id)}
@@ -224,7 +218,6 @@ const DesignationsPage: React.FC = () => {
                   ))
                 )}
               </tbody>
-
             </table>
           </div>
         </div>
@@ -232,92 +225,150 @@ const DesignationsPage: React.FC = () => {
 
       {/* ADD MODAL */}
       {showAdd && (
-        <div className="modal show d-block">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <form onSubmit={handleAdd}>
-                <div className="modal-header">
-                  <h5 className="modal-title">Add Designation</h5>
-                  <button type="button" className="btn-close" onClick={() => setShowAdd(false)}></button>
-                </div>
-
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">Title</label>
-                    <input className="form-control" value={titleInput} onChange={(e) => setTitleInput(e.target.value)} required />
+        <>
+          <div className="modal fade show" style={{ display: "block" }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <form onSubmit={handleAdd}>
+                  <div className="modal-header">
+                    <h5 className="modal-title">Add Designation</h5>
+                    <button type="button" className="btn-close" onClick={() => setShowAdd(false)} />
                   </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Department</label>
-                    <select className="form-select" value={deptInput} onChange={(e) => setDeptInput(e.target.value)}>
-                      <option value="">Select Department</option>
-                      {departments.map((d) => (
-                        <option key={d.id} value={d.id}>{d.name}</option>
-                      ))}
-                    </select>
+                  <div className="modal-body">
+                    <div className="mb-3">
+                      <label className="form-label">Title</label>
+                      <input
+                        className="form-control"
+                        value={titleInput}
+                        onChange={(e) => setTitleInput(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Department</label>
+                      <select
+                        className="form-select"
+                        value={deptInput}
+                        onChange={(e) => setDeptInput(e.target.value)}
+                      >
+                        <option value="">Select Department</option>
+                        {departments.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Description</label>
+                      <textarea
+                        className="form-control"
+                        value={descInput}
+                        onChange={(e) => setDescInput(e.target.value)}
+                      />
+                    </div>
                   </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Description</label>
-                    <textarea className="form-control" value={descInput} onChange={(e) => setDescInput(e.target.value)} />
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-light" onClick={() => setShowAdd(false)}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      Save
+                    </button>
                   </div>
-                </div>
-
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-light" onClick={() => setShowAdd(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary">Save</button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
-          <div className="modal-backdrop show"></div>
-        </div>
+
+          <div className="modal-backdrop fade show"></div>
+        </>
       )}
 
       {/* EDIT MODAL */}
       {showEdit && editing && (
-        <div className="modal show d-block">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <form onSubmit={handleEditSubmit}>
-                <div className="modal-header">
-                  <h5 className="modal-title">Edit Designation</h5>
-                  <button type="button" className="btn-close" onClick={() => { setShowEdit(false); setEditing(null); }}></button>
-                </div>
-
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">Title</label>
-                    <input className="form-control" value={titleInput} onChange={(e) => setTitleInput(e.target.value)} required />
+        <>
+          <div className="modal fade show" style={{ display: "block" }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <form onSubmit={handleEditSubmit}>
+                  <div className="modal-header">
+                    <h5 className="modal-title">Edit Designation</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={() => {
+                        setShowEdit(false);
+                        setEditing(null);
+                      }}
+                    />
                   </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Department</label>
-                    <select className="form-select" value={deptInput} onChange={(e) => setDeptInput(e.target.value)}>
-                      <option value="">Select Department</option>
-                      {departments.map((d) => (
-                        <option key={d.id} value={d.id}>{d.name}</option>
-                      ))}
-                    </select>
+                  <div className="modal-body">
+                    <div className="mb-3">
+                      <label className="form-label">Title</label>
+                      <input
+                        className="form-control"
+                        value={titleInput}
+                        onChange={(e) => setTitleInput(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Department</label>
+                      <select
+                        className="form-select"
+                        value={deptInput}
+                        onChange={(e) => setDeptInput(e.target.value)}
+                      >
+                        <option value="">Select Department</option>
+                        {departments.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Description</label>
+                      <textarea
+                        className="form-control"
+                        value={descInput}
+                        onChange={(e) => setDescInput(e.target.value)}
+                      />
+                    </div>
                   </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Description</label>
-                    <textarea className="form-control" value={descInput} onChange={(e) => setDescInput(e.target.value)} />
-                  </div>
-                </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-light"
+                      onClick={() => {
+                        setShowEdit(false);
+                        setEditing(null);
+                      }}
+                    >
+                      Cancel
+                    </button>
 
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-light" onClick={() => { setShowEdit(false); setEditing(null); }}>Cancel</button>
-                  <button type="submit" className="btn btn-primary">Save Changes</button>
-                </div>
-              </form>
+                    <button type="submit" className="btn btn-primary">
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-          <div className="modal-backdrop show"></div>
-        </div>
-      )}
 
+          <div className="modal-backdrop fade show"></div>
+        </>
+      )}
     </div>
   );
 };

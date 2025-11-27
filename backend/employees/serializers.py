@@ -2,30 +2,50 @@ from rest_framework import serializers
 from .models import Employee, Department, Designation, Policy
 
 
-# =====================================
-#        DEPARTMENT SERIALIZER
-# =====================================
+# ==============================================================
+#                     DEPARTMENT SERIALIZER
+# ==============================================================
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ('id', 'name', 'description')
+        fields = ("id", "name", "description")
 
 
-# =====================================
-#        DESIGNATION SERIALIZER
-# =====================================
+# ==============================================================
+#                     DESIGNATION SERIALIZER
+# ==============================================================
 class DesignationSerializer(serializers.ModelSerializer):
+
+    # READ-ONLY nested department info
+    department_detail = DepartmentSerializer(source="department", read_only=True)
+
+    # WRITE-ONLY department foreign key
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(),
+        source="department",
+        write_only=True,
+        allow_null=True,
+        required=False
+    )
+
     class Meta:
         model = Designation
-        fields = ('id', 'title', 'description')
+        fields = (
+            "id",
+            "title",
+            "description",
+            "department_id",       # write-only FK
+            "department_detail",   # read-only nested object
+        )
+        read_only_fields = ("department_detail",)
 
 
-# =====================================
-#        EMPLOYEE SERIALIZER
-# =====================================
+# ==============================================================
+#                     EMPLOYEE SERIALIZER
+# ==============================================================
 class EmployeeSerializer(serializers.ModelSerializer):
 
-    # READ-ONLY nested
+    # READ nested objects
     department = DepartmentSerializer(read_only=True)
     designation = DesignationSerializer(read_only=True)
 
@@ -56,64 +76,77 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = Employee
         fields = [
             # Basic Info
-            'id',
-            'emp_code',
-            'first_name',
-            'middle_name',
-            'last_name',
-            'gender',
-            'date_of_birth',
+            "id",
+            "emp_code",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "gender",
+            "date_of_birth",
 
-            # Contact Info
-            'email',
-            'phone',
-            'alternate_phone',
-            'address',
+            # Contact
+            "email",
+            "phone",
+            "alternate_phone",
+            "address",
 
-            # Emergency Contact
-            'emergency_contact_name',
-            'emergency_contact_number',
+            # Emergency
+            "emergency_contact_name",
+            "emergency_contact_number",
 
             # Job Info
-            'role',
-            'department',
-            'department_id',
-            'designation',
-            'designation_id',
-            'joining_date',
-            'employment_type',
-            'reporting_to',
+            "role",
+            "department",
+            "department_id",
+            "designation",
+            "designation_id",
+            "joining_date",
+            "employment_type",
+            "reporting_to",
 
-            # Extra HR Info
-            'national_id',
-            'blood_group',
-            'marital_status',
-            'work_shift',
-            'work_location',
+            # HR Info
+            "national_id",
+            "blood_group",
+            "marital_status",
+            "work_shift",
+            "work_location",
 
-            # Photo
-            'photo',
+            # Profile
+            "photo",
 
             # Payroll
-            'salary',
+            "salary",
 
             # Status
-            'is_active',
+            "is_active",
 
             # Audit
-            'created_by',
-            'created_at',
-            'updated_at',
+            "created_by",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ('created_at', 'updated_at')
+        read_only_fields = ("created_at", "updated_at")
 
 
-# =====================================
-#        POLICY SERIALIZER
-# =====================================
+# ==============================================================
+#                     POLICY SERIALIZER
+# ==============================================================
+# ==============================================================
+#                     POLICY SERIALIZER
+# ==============================================================
 class PolicySerializer(serializers.ModelSerializer):
-    # Nested read-only department details
+
+    # Read-only nested department
     department_detail = DepartmentSerializer(source="department", read_only=True)
+
+    # Write-only FK field (IMPORTANT)
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(),
+        source="department",
+        write_only=True,
+        allow_null=True,
+        required=False
+    )
 
     class Meta:
         model = Policy
@@ -121,8 +154,10 @@ class PolicySerializer(serializers.ModelSerializer):
             "id",
             "title",
             "appraisal_date",
-            "department",          # ForeignKey (write)
-            "department_detail",   # Read-only nested object
+
+            "department_id",      # ← write-only
+            "department_detail",  # ← read-only nested
+
             "description",
             "file",
             "created_at",

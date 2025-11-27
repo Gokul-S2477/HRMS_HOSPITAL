@@ -19,6 +19,15 @@ class Designation(models.Model):
     title = models.CharField(max_length=120, unique=True)
     description = models.TextField(blank=True, null=True)
 
+    # 🔥 Department linked to designation
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="designations"
+    )
+
     def __str__(self):
         return self.title
 
@@ -60,7 +69,7 @@ class Employee(models.Model):
     gender = models.CharField(max_length=10, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
 
-    # Contact Details
+    # Contact
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     alternate_phone = models.CharField(max_length=20, blank=True, null=True)
@@ -84,7 +93,7 @@ class Employee(models.Model):
         'self', null=True, blank=True, on_delete=models.SET_NULL, related_name="subordinates"
     )
 
-    # HR Info
+    # Extra HR Info
     national_id = models.CharField(max_length=120, blank=True, null=True)
     blood_group = models.CharField(max_length=10, blank=True, null=True)
     marital_status = models.CharField(max_length=15, choices=MARITAL_STATUS, default='Single')
@@ -93,7 +102,7 @@ class Employee(models.Model):
     work_shift = models.CharField(max_length=120, blank=True, null=True)
     work_location = models.CharField(max_length=120, blank=True, null=True)
 
-    # Profile Photo
+    # Photo
     photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)
 
     # Payroll
@@ -118,13 +127,9 @@ class Employee(models.Model):
 #                 POLICY
 # ======================================
 class Policy(models.Model):
-    # SmartHR uses 'title', so we match frontend
     title = models.CharField(max_length=200)
-
-    # Optional appraisal date
     appraisal_date = models.DateField(null=True, blank=True)
 
-    # Department filter — null means “Applies to all departments”
     department = models.ForeignKey(
         Department,
         on_delete=models.SET_NULL,
