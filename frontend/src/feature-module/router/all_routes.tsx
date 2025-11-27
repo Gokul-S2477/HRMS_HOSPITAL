@@ -378,6 +378,11 @@ export const all_routes = {
   payrollAddition: "/payroll",
   payrollOvertime: "/payroll-overtime",
   payrollDeduction: "/payroll-deduction",
+  payrollList: "/payroll",
+  addPayroll: "/payroll/add",
+  viewPayroll: "/payroll/view/:id",
+  addSalaryComponent: "/payroll/component/add",
+
 
   //ADMINISTRATION
 //  knowledgebase: "/knowledgebase",

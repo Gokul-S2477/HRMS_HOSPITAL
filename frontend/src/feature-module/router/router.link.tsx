@@ -223,6 +223,10 @@ import Departments from "../mainMenu/employeeDashboard/departments";
 import Designations from "../mainMenu/employeeDashboard/designations";
 import Policies from "../mainMenu/employeeDashboard/policies";
 import EmployeeAdd from "../mainMenu/employeeDashboard/employee-add";
+import PayrollList from "../mainMenu/payroll/PayrollList";
+import AddPayroll from "../mainMenu/payroll/AddPayroll";
+import ViewPayroll from "../mainMenu/payroll/ViewPayroll";
+import AddSalaryComponent from "../mainMenu/payroll/AddSalaryComponent";
 
 // ---------------------------------------------------------
 
@@ -1413,6 +1417,22 @@ export const protectedRoutes = [
     path: routes.policy,              // "/policy"
     element: <Policies />,
   },
-  
+    {
+    path: all_routes.payrollList,
+    element: <PayrollList />,
+  },
+  {
+    path: all_routes.addPayroll,
+    element: <AddPayroll />,
+  },
+  {
+    path: all_routes.viewPayroll,
+    element: <ViewPayroll />,
+  },
+  {
+    path: all_routes.addSalaryComponent,
+    element: <AddSalaryComponent />,
+  },
+
 
 ];

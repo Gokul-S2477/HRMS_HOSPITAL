@@ -1,26 +1,38 @@
 from django.db import models
+from backend.employee.models import Employee
 
-# Create your models here.
-from django.db import models
-from django.utils import timezone
-from employees.models import Employee
+# 1️⃣ Salary Component Model
+class SalaryComponent(models.Model):
+    COMPONENT_TYPES = (
+        ('earning', 'Earning'),
+        ('deduction', 'Deduction'),
+    )
 
-class Payroll(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='payroll_records')
-    month = models.CharField(max_length=20)  # e.g. "November 2025"
-    basic_salary = models.DecimalField(max_digits=10, decimal_places=2)
-    bonuses = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    deductions = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    total_salary = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    paid_on = models.DateField(default=timezone.now)
-    remarks = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def save(self, *args, **kwargs):
-        # Auto-calculate total salary
-        self.total_salary = (self.basic_salary + self.bonuses) - self.deductions
-        super().save(*args, **kwargs)
+    name = models.CharField(max_length=100)
+    component_type = models.CharField(max_length=20, choices=COMPONENT_TYPES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"{self.employee.first_name} - {self.month}"
+        return f"{self.name} ({self.component_type})"
+
+
+# 2️⃣ Employee Payroll Model
+class EmployeePayroll(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    month = models.IntegerField()  # 1-12
+    year = models.IntegerField()
+
+    basic_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    hra = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    # Many components → one payroll
+    components = models.ManyToManyField(SalaryComponent, blank=True)
+
+    gross_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_deductions = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    net_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.employee.name} - {self.month}/{self.year}"

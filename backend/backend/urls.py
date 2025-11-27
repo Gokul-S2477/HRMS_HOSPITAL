@@ -17,6 +17,8 @@ urlpatterns = [
     path('api/', include('attendance.urls')),
     path('api/', include('payroll.urls')),
     path('api/', include('dashboard.urls')),
+    path('api/', include('payroll.urls')),
+
 
     # DRF login (helps with form-data / file uploads)
     path('api-auth/', include('rest_framework.urls')),
