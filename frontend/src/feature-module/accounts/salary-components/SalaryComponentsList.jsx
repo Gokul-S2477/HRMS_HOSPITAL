@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../../../services/axios"; 
+import API from "../../../api/axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -9,10 +9,11 @@ const SalaryComponentsList = () => {
   // Fetch components
   const loadData = async () => {
     try {
-      const res = await axios.get("/salary-components/");
+      const res = await API.get("/salary-components/");
       setComponents(res.data);
     } catch (err) {
-      toast.error("Failed to fetch salary components");
+      console.error("Failed to load salary components", err);
+      toast.error("Failed to load salary components");
     }
   };
 
@@ -20,77 +21,66 @@ const SalaryComponentsList = () => {
     loadData();
   }, []);
 
-  // Delete
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this salary component?")) return;
+    if (!window.confirm("Delete this component?")) return;
     try {
-      await axios.delete(`/salary-components/${id}/`);
+      await API.delete(`/salary-components/${id}/`);
       toast.success("Deleted successfully!");
       loadData();
-    } catch {
-      toast.error("Failed to delete");
+    } catch (err) {
+      console.error("Delete failed", err);
+      toast.error("Delete failed");
     }
   };
 
   return (
-    <div className="page-wrapper">
-      <div className="content container-fluid">
+    <div>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3>Salary Components</h3>
+        <Link to="/accounts/salary-components/create" className="btn btn-primary">
+          + Add Component
+        </Link>
+      </div>
 
-        <div className="page-header">
-          <h3 className="page-title">Salary Components</h3>
-          <div className="page-btn">
-            <Link to="/accounts/salary-components/create" className="btn btn-primary">
-              <i className="fa fa-plus"></i> Add Component
-            </Link>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-body">
-            <table className="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Amount</th>
-                  <th>Percentage</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {components.map((item, index) => (
-                  <tr key={item.id}>
-                    <td>{index + 1}</td>
-                    <td>{item.name}</td>
-                    <td>{item.type}</td>
-                    <td>{item.amount || "-"}</td>
-                    <td>{item.percentage || "-"}</td>
-
-                    <td>
-                      <Link
-                        to={`/accounts/salary-components/edit/${item.id}`}
-                        className="btn btn-sm btn-warning me-2"
-                      >
-                        Edit
-                      </Link>
-
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="btn btn-sm btn-danger"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-
-            </table>
-          </div>
-        </div>
-
+      <div className="table-responsive">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th style={{ width: 180 }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {components.length === 0 && (
+              <tr>
+                <td colSpan={4}>No components found.</td>
+              </tr>
+            )}
+            {components.map((c) => (
+              <tr key={c.id}>
+                <td>{c.name}</td>
+                <td>{c.component_type}</td>
+                <td>{c.amount}</td>
+                <td>
+                  <Link
+                    to={`/accounts/salary-components/edit/${c.id}`}
+                    className="btn btn-sm btn-warning me-2"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(c.id)}
+                    className="btn btn-sm btn-danger"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

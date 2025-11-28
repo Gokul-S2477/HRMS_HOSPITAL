@@ -1,17 +1,18 @@
 import React from "react";
 import { Route, Routes } from "react-router";
-import { authRoutes, publicRoutes, protectedRoutes } from "./router.link";
-import Feature from "../feature";
-import AuthFeature from "../authFeature";
+import { publicRoutes, protectedRoutes } from "./router.link";
+
+import Feature from "../feature";             // Layout for authenticated pages
+import AuthFeature from "../authFeature";     // Layout for login/register pages
 import ProtectedRoute from "../../core/auth/ProtectedRoute";
 
-const ALLRoutes: React.FC = () => {
+const Router = () => {
   return (
     <Routes>
 
-      {/* 🔹 PUBLIC ROUTES (Login, Register, Forgot Password) */}
+      {/* 🔹 PUBLIC ROUTES (Login / Register / Forgot Password / Verification) */}
       <Route element={<AuthFeature />}>
-        {authRoutes.map((route, idx) => (
+        {publicRoutes.map((route, idx) => (
           <Route
             key={idx}
             path={route.path}
@@ -20,28 +21,16 @@ const ALLRoutes: React.FC = () => {
         ))}
       </Route>
 
-      {/* 🔒 PROTECTED ROUTES (Dashboards + All 1500 pages) */}
-      <Route element={<Feature />}>
+      {/* 🔹 PROTECTED ROUTES (Dashboard / HRM / Payroll / Admin / Settings) */}
+      <Route element={<ProtectedRoute />}>
         {protectedRoutes.map((route, idx) => (
           <Route
             key={idx}
             path={route.path}
             element={
-              <ProtectedRoute>
+              <Feature>
                 {route.element}
-              </ProtectedRoute>
-            }
-          />
-        ))}
-
-        {publicRoutes.map((route, idx) => (
-          <Route
-            key={idx}
-            path={route.path}
-            element={
-              <ProtectedRoute>
-                {route.element}
-              </ProtectedRoute>
+              </Feature>
             }
           />
         ))}
@@ -51,4 +40,4 @@ const ALLRoutes: React.FC = () => {
   );
 };
 
-export default ALLRoutes;
+export default Router;

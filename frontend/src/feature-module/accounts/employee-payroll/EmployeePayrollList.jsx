@@ -1,27 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "../../../utils/axiosInstance"; // your axios wrapper
+import API from "../../../api/axios";
 
 const EmployeePayrollList = () => {
   const [payrolls, setPayrolls] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchPayrolls = async () => {
+    setLoading(true);
     try {
-      const res = await axios.get("/employee-payroll/");
+      const res = await API.get("/employee-payroll/");
       setPayrolls(res.data);
     } catch (error) {
       console.error("Error fetching payroll data:", error);
-    }
-  };
-
-  const deletePayroll = async (id) => {
-    if (!window.confirm("Delete this payroll?")) return;
-
-    try {
-      await axios.delete(`/employee-payroll/${id}/`);
-      fetchPayrolls();
-    } catch (error) {
-      console.error("Delete failed:", error);
+      setPayrolls([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,87 +24,62 @@ const EmployeePayrollList = () => {
   }, []);
 
   return (
-    <div className="page-wrapper">
-      <div className="content container-fluid">
+    <div>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3>Employee Payroll</h3>
+        <Link to="/accounts/employee-payroll/create" className="btn btn-primary">
+          + Add Payroll
+        </Link>
+      </div>
 
-        <div className="page-header">
-          <div className="row align-items-center">
-            <div className="col">
-              <h3 className="page-title">Employee Payroll</h3>
-            </div>
-            <div className="col-auto">
-              <Link
-                className="btn btn-primary"
-                to="/accounts/employee-payroll/create"
-              >
-                <i className="fa fa-plus"></i> Add Payroll
-              </Link>
-            </div>
-          </div>
-        </div>
+      <div className="table-responsive">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Month/Year</th>
+              <th>Total Salary</th>
+              <th style={{ width: 220 }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
+              <tr>
+                <td colSpan={4}>Loading...</td>
+              </tr>
+            )}
+            {!loading && payrolls.length === 0 && (
+              <tr>
+                <td colSpan={4}>No payrolls found.</td>
+              </tr>
+            )}
+            {!loading &&
+              payrolls.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.employee_name || (p.employee && p.employee.name)}</td>
+                  <td>
+                    {p.month} / {p.year}
+                  </td>
+                  <td>{p.total_salary}</td>
+                  <td>
+                    <Link
+                      to={`/accounts/employee-payroll/edit/${p.id}`}
+                      className="btn btn-sm btn-warning me-2"
+                    >
+                      Edit
+                    </Link>
 
-        <div className="card">
-          <div className="card-body">
-
-            <div className="table-responsive">
-              <table className="table table-hover table-center">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Employee</th>
-                    <th>Month</th>
-                    <th>Year</th>
-                    <th>Total Salary</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {payrolls.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" className="text-center">
-                        No payroll records found.
-                      </td>
-                    </tr>
-                  ) : (
-                    payrolls.map((p) => (
-                      <tr key={p.id}>
-                        <td>{p.id}</td>
-                        <td>{p.employee_name}</td>
-                        <td>{p.month}</td>
-                        <td>{p.year}</td>
-                        <td>{p.total_salary}</td>
-                        <td>
-                          <Link
-                            className="btn btn-sm btn-info me-2"
-                            to={`/accounts/payslips/view/${p.id}`}
-                          >
-                            View
-                          </Link>
-
-                          <Link
-                            className="btn btn-sm btn-warning me-2"
-                            to={`/accounts/employee-payroll/edit/${p.id}`}
-                          >
-                            Edit
-                          </Link>
-
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() => deletePayroll(p.id)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-          </div>
-        </div>
-
+                    <Link
+                      to={`/accounts/payslips/view/${p.id}`}
+                      className="btn btn-sm btn-info"
+                    >
+                      View Payslip
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

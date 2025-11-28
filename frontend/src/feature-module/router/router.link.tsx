@@ -1,3 +1,141 @@
+import React from "react";
+import { Route } from "react-router";
+import { Navigate } from "react-router-dom";
+import { all_routes as routes } from "./all_routes";
+
+// AUTH SCREENS
+import Login from "../auth/login/login";
+import Login2 from "../auth/login/login-2";
+import Login3 from "../auth/login/login-3";
+import Register from "../auth/register/register";
+import Register2 from "../auth/register/register-2";
+import Register3 from "../auth/register/register-3";
+import ForgotPassword from "../auth/forgotPassword/forgotPassword";
+import ForgotPassword2 from "../auth/forgotPassword/forgotPassword-2";
+import ForgotPassword3 from "../auth/forgotPassword/forgotPassword-3";
+import ResetPassword from "../auth/resetPassword/resetPassword";
+import ResetPassword2 from "../auth/resetPassword/resetPassword-2";
+import ResetPassword3 from "../auth/resetPassword/resetPassword-3";
+import TwoStepVerification from "../auth/twoStepVerification/twoStepVerification";
+import TwoStepVerification2 from "../auth/twoStepVerification/twoStepVerification-2";
+import TwoStepVerification3 from "../auth/twoStepVerification/twoStepVerification-3";
+import EmailVerification from "../auth/emailVerification/emailVerification";
+import EmailVerification2 from "../auth/emailVerification/emailVerification-2";
+import EmailVerification3 from "../auth/emailVerification/emailVerification-3";
+import ResetPasswordSuccess from "../auth/resetPasswordSuccess/resetPasswordSuccess";
+import ResetPasswordSuccess2 from "../auth/resetPasswordSuccess/resetPasswordSuccess-2";
+import ResetPasswordSuccess3 from "../auth/resetPasswordSuccess/resetPasswordSuccess-3";
+import LockScreen from "../auth/lockScreen";
+import ComingSoon from "../pages/comingSoon";
+import UnderMaintenance from "../pages/underMaintenance";
+import Error404 from "../pages/error/error-404";
+import Error500 from "../pages/error/error-500";
+
+// PROTECTED SCREENS
+import ProtectedRoute from "../../core/auth/ProtectedRoute";
+
+// Dashboards
+import AdminDashboard from "../mainMenu/adminDashboard";
+import EmployeeDashboard from "../mainMenu/employeeDashboard/employee-dashboard";
+import LeadsDashboard from "../mainMenu/leadsDashboard";
+import DealsDashboard from "../mainMenu/dealsDashboard";
+
+// Employee Management
+import EmployeeList from "../mainMenu/employeeDashboard/employee-list";
+import EmployeeGrid from "../mainMenu/employeeDashboard/employee-grid";
+import EmployeeDetails from "../mainMenu/employeeDashboard/employee-details";
+import Departments from "../mainMenu/employeeDashboard/departments";
+import Designations from "../mainMenu/employeeDashboard/designations";
+import Policies from "../mainMenu/employeeDashboard/policies";
+import EmployeeAdd from "../mainMenu/employeeDashboard/employee-add";
+
+// PAYROLL MODULE
+import SalaryComponentsList from "../accounts/salary-components/SalaryComponentsList";
+import SalaryComponentsForm from "../accounts/salary-components/SalaryComponentsForm";
+import EmployeePayrollList from "../accounts/employee-payroll/EmployeePayrollList";
+import EmployeePayrollForm from "../accounts/employee-payroll/EmployeePayrollForm";
+import PayslipList from "../accounts/payslips/PayslipList";
+import PayslipView from "../accounts/payslips/PayslipView";
+
+
+export const publicRoutes = [
+  {
+    path: "/",
+    element: <Navigate to={routes.login} />,
+    route: Route,
+  },
+
+  // LOGIN / REGISTER / PASSWORD FLOWS
+  { path: routes.login, element: <Login />, route: Route },
+  { path: routes.login2, element: <Login2 />, route: Route },
+  { path: routes.login3, element: <Login3 />, route: Route },
+
+  { path: routes.register, element: <Register />, route: Route },
+  { path: routes.register2, element: <Register2 />, route: Route },
+  { path: routes.register3, element: <Register3 />, route: Route },
+
+  { path: routes.forgotPassword, element: <ForgotPassword />, route: Route },
+  { path: routes.forgotPassword2, element: <ForgotPassword2 />, route: Route },
+  { path: routes.forgotPassword3, element: <ForgotPassword3 />, route: Route },
+
+  { path: routes.resetPassword, element: <ResetPassword />, route: Route },
+  { path: routes.resetPassword2, element: <ResetPassword2 />, route: Route },
+  { path: routes.resetPassword3, element: <ResetPassword3 />, route: Route },
+
+  { path: routes.resetPasswordSuccess, element: <ResetPasswordSuccess />, route: Route },
+  { path: routes.resetPasswordSuccess2, element: <ResetPasswordSuccess2 />, route: Route },
+  { path: routes.resetPasswordSuccess3, element: <ResetPasswordSuccess3 />, route: Route },
+
+  { path: routes.twoStepVerification, element: <TwoStepVerification />, route: Route },
+  { path: routes.twoStepVerification2, element: <TwoStepVerification2 />, route: Route },
+  { path: routes.twoStepVerification3, element: <TwoStepVerification3 />, route: Route },
+
+  { path: routes.emailVerification, element: <EmailVerification />, route: Route },
+  { path: routes.emailVerification2, element: <EmailVerification2 />, route: Route },
+  { path: routes.emailVerification3, element: <EmailVerification3 />, route: Route },
+
+  { path: routes.lockScreen, element: <LockScreen />, route: Route },
+  { path: routes.comingSoon, element: <ComingSoon />, route: Route },
+  { path: routes.underMaintenance, element: <UnderMaintenance />, route: Route },
+  { path: routes.error404, element: <Error404 />, route: Route },
+  { path: routes.error500, element: <Error500 />, route: Route },
+];
+export const protectedRoutes = [
+
+  // DASHBOARDS
+  { path: routes.adminDashboard, element: <AdminDashboard /> },
+  { path: routes.employeeDashboard, element: <EmployeeDashboard /> },
+  { path: routes.leadsDashboard, element: <LeadsDashboard /> },
+  { path: routes.dealsDashboard, element: <DealsDashboard /> },
+
+  // EMPLOYEE MODULE
+  { path: routes.employeeList, element: <EmployeeList /> },
+  { path: routes.employeeAdd, element: <EmployeeAdd /> },
+  { path: routes.employeeGrid, element: <EmployeeGrid /> },
+  { path: routes.employeedetails, element: <EmployeeDetails /> },
+  { path: routes.departments, element: <Departments /> },
+  { path: routes.designations, element: <Designations /> },
+  { path: routes.policy, element: <Policies /> },
+
+  // ⭐ PAYROLL – Salary Components
+  { path: routes.salaryComponents, element: <SalaryComponentsList /> },
+  { path: routes.salaryComponentsCreate, element: <SalaryComponentsForm /> },
+  { path: `${routes.salaryComponentsEdit}`, element: <SalaryComponentsForm /> },
+
+  // ⭐ PAYROLL – Employee Payroll
+  { path: routes.employeePayroll, element: <EmployeePayrollList /> },
+  { path: routes.employeePayrollCreate, element: <EmployeePayrollForm /> },
+  { path: `${routes.employeePayrollEdit}`, element: <EmployeePayrollForm /> },
+
+  // ⭐ PAYROLL – Payslips
+  { path: routes.payslips, element: <PayslipList /> },
+  { path: `${routes.payslipsView}`, element: <PayslipView /> },
+];
+
+
+
+
+/*
 import { Navigate, Route } from "react-router";
 import { all_routes } from "./all_routes";
 import DataTable from "../tables/dataTable";
@@ -224,14 +362,14 @@ import Designations from "../mainMenu/employeeDashboard/designations";
 import Policies from "../mainMenu/employeeDashboard/policies";
 import EmployeeAdd from "../mainMenu/employeeDashboard/employee-add";
 // Payroll Components
-import SalaryComponentsList from "../pages/payroll/salaryComponents/SalaryComponentsList";
-import SalaryComponentsForm from "../pages/payroll/salaryComponents/SalaryComponentsForm";
+import SalaryComponentsList from "../accounts/salary-components/SalaryComponentsList";
+import SalaryComponentsForm from "../accounts/salary-components/SalaryComponentsForm";
 
-import EmployeePayrollList from "../pages/payroll/employeePayroll/EmployeePayrollList";
-import EmployeePayrollForm from "../pages/payroll/employeePayroll/EmployeePayrollForm";
+import EmployeePayrollList from "../accounts/employee-payroll/EmployeePayrollList";
+import EmployeePayrollForm from "../accounts/employee-payroll/EmployeePayrollForm";
 
-import PayslipList from "../pages/payroll/payslips/PayslipList";
-import PayslipView from "../pages/payroll/payslips/PayslipView";
+import PayslipList from "../accounts/payslips/PayslipList";
+import PayslipView from "../accounts/payslips/PayslipView";
 
 // ---------------------------------------------------------
 
@@ -281,7 +419,7 @@ export const publicRoutes = [
       </ProtectedRoute>
     ),
     route: Route,
-  }, */
+  }, 
 
   {
     path: routes.trainingType,
@@ -1117,40 +1255,40 @@ export const publicRoutes = [
   //  path: routes.permissionpage,
   //  element: <Permission />,
   //},
-  {
-    path: routes.invoiceDetails,
-    element: <InvoiceDetails />,
-  },
-  {
-    path: routes.jobgrid,
-    element: <JobGrid />,
-    route: Route,
-  },
-  {
-    path: routes.joblist,
-    element: <JobList />,
-    route: Route,
-  },
-  {
-    path: routes.candidatesGrid,
-    element: <CandidateGrid />,
-    route: Route,
-  },
-  {
-    path: routes.candidateslist,
-    element: <CandidatesList />,
-    route: Route,
-  },
-  {
-    path: routes.candidateskanban,
-    element: <CandidateKanban />,
-    route: Route,
-  },
-  {
-    path: routes.refferal,
-    element: <RefferalList />,
-    route: Route,
-  },
+//  {
+//    path: routes.invoiceDetails,
+//    element: <InvoiceDetails />,
+//  },
+//  {
+//    path: routes.jobgrid,
+//    element: <JobGrid />,
+//    route: Route,
+//  },
+//  {
+//    path: routes.joblist,
+//    element: <JobList />,
+//    route: Route,
+//  },
+//  {
+//    path: routes.candidatesGrid,
+//    element: <CandidateGrid />,
+//    route: Route,
+//  },
+//  {
+//    path: routes.candidateslist,
+//    element: <CandidatesList />,
+//    route: Route,
+//  },
+//  {
+//    path: routes.candidateskanban,
+//    element: <CandidateKanban />,
+//    route: Route,
+//  },
+//  {
+//    path: routes.refferal,
+//    element: <RefferalList />,
+//    route: Route,
+//  },
   {
     path: routes.clientgrid,
     element: <ClienttGrid />,
@@ -1196,11 +1334,11 @@ export const publicRoutes = [
     element: <TaskBoard />,
     route: Route,
   },
-  {
-    path: routes.invoicesdetails,
-    element: <InvoiceDetails />,
-    route: Route,
-  },
+//  {
+//    path: routes.invoicesdetails,
+//    element: <InvoiceDetails />,
+//    route: Route,
+//  },
   {
     path: routes.superAdminCompanies,
     element: <Companies />,
@@ -1234,6 +1372,7 @@ export const publicRoutes = [
 ];
 
 export const protectedRoutes = [
+  // ⭐ DASHBOARDS
   {
     path: routes.adminDashboard,
     element: <AdminDashboard />,
@@ -1251,7 +1390,7 @@ export const protectedRoutes = [
     element: <DealsDashboard />,
   },
 
-  // ⭐ EMPLOYEE MODULE ROUTES
+  // ⭐ EMPLOYEE MODULE
   {
     path: routes.employeeList,
     element: <EmployeeList />,
@@ -1281,38 +1420,42 @@ export const protectedRoutes = [
     element: <Policies />,
   },
 
-  // ⭐ PAYROLL MODULE ROUTES
+  // ⭐ PAYROLL – Salary Components
   {
-    path: routes.salaryComponents,
+    path: routes.salaryComponents,               // "/accounts/salary-components"
     element: <SalaryComponentsList />,
   },
   {
-    path: routes.salaryComponentsCreate,
+    path: routes.salaryComponentsCreate,         // "/accounts/salary-components/create"
     element: <SalaryComponentsForm />,
   },
   {
-    path: routes.salaryComponentsEdit,   // "/accounts/salary-components/edit/:id"
+    path: `${routes.salaryComponentsEdit}/:id`,  // "/accounts/salary-components/edit"
     element: <SalaryComponentsForm />,
   },
 
+  // ⭐ PAYROLL – Employee Payroll
   {
-    path: routes.employeePayroll,
+    path: routes.employeePayroll,                // "/accounts/employee-payroll"
     element: <EmployeePayrollList />,
   },
   {
-    path: routes.employeePayrollCreate,
+    path: routes.employeePayrollCreate,          // "/accounts/employee-payroll/create"
     element: <EmployeePayrollForm />,
   },
   {
-    path: routes.employeePayrollEdit,   // "/accounts/employee-payroll/edit/:id"
+    path: `${routes.employeePayrollEdit}/:id`,   // "/accounts/employee-payroll/edit/:id"
     element: <EmployeePayrollForm />,
   },
 
+  // ⭐ PAYROLL – Payslips
   {
-    path: routes.payslips,
+    path: routes.payslips,                       // "/accounts/payslips"
     element: <PayslipList />,
   },
   {
-    path: routes.payslipsView,          // "/accounts/payslips/view/:id"
+    path: `${routes.payslipsView}/:id`,          // "/accounts/payslips/view/:id"
     element: <PayslipView />,
   },
+];
+*/

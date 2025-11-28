@@ -1,11 +1,11 @@
 export const all_routes = {
-  // dashboard routes
+  // ---------- Dashboard ----------
   adminDashboard: "/index",
   employeeDashboard: "/employee-dashboard",
   leadsDashboard: "/leads-dashboard",
   dealsDashboard: "/deals-dashboard",
 
-  //Application routes
+  // ---------- Application ----------
   chat: "/application/chat",
   voiceCall: "/application/voice-call",
   videoCall: "/application/video-call",
@@ -22,7 +22,10 @@ export const all_routes = {
   kanbanView: "/application/kanban-view",
   invoice: "/application/invoices",
 
-  //super admin module
+  // ---------- Missing route from errors ----------
+  chart: "/application/chart",
+
+  // ---------- Super Admin ----------
   superAdminDashboard: "/super-admin/dashboard",
   superAdminCompanies: "/super-admin/companies",
   superAdminSubscriptions: "/super-admin/subscription",
@@ -31,12 +34,13 @@ export const all_routes = {
   superAdminDomain: "/super-admin/domain",
   superAdminPurchaseTransaction: "/super-admin/purchase-transaction",
 
+  // ---------- Basic ----------
   calendar: "/calendar",
   dataTables: "/data-tables",
   tablesBasic: "/tables-basic",
   notes: "/notes",
 
-  //page module
+  // ---------- Pages ----------
   starter: "/starter",
   profile: "/pages/profile",
   gallery: "/gallery",
@@ -52,7 +56,7 @@ export const all_routes = {
   privacyPolicy: "/privacy-policy",
   termscondition: "/terms-condition",
 
-  // auth routes routes
+  // ---------- Auth ----------
   login: "/login",
   login2: "/login-2",
   login3: "/login-3",
@@ -73,11 +77,8 @@ export const all_routes = {
   resetPassword: "/reset-password",
   resetPassword2: "/reset-password-2",
   resetPassword3: "/reset-password-3",
-  resetPasswordSuccess: "/success",
-  resetPasswordSuccess2: "/success-2",
-  resetPasswordSuccess3: "/success-3",
 
-  //ui routes
+  // ---------- UI ----------
   alert: "/ui-alert",
   accordion: "/ui-accordion",
   avatar: "/ui-avatar",
@@ -120,8 +121,6 @@ export const all_routes = {
   apexChart: "/ui-apexchart",
   primeChart: "/ui-prime-chart",
   chartJs: "/ui-chart-js",
-
-  chart: "/ui-chartjs",
   featherIcons: "/ui-feather-icon",
   falgIcons: "/ui-flag-icon",
   fontawesome: "/ui-fontawesome",
@@ -131,6 +130,8 @@ export const all_routes = {
   themifyIcon: "/ui-themify",
   typicon: "/ui-typicon",
   weatherIcon: "/ui-weather-icon",
+
+  // ---------- Forms ----------
   basicInput: "/forms-basic-input",
   checkboxandRadion: "/form-checkbox-radios",
   inputGroup: "/form-input-groups",
@@ -145,6 +146,8 @@ export const all_routes = {
   formValidation: "/form-validation",
   reactSelect: "/select",
   formWizard: "/form-wizard",
+
+  // ---------- Icons ----------
   iconicIcon: "/icon-ionic",
   sortable: "/ui-sortable",
   swiperjs: "/ui-swiperjs",
@@ -152,40 +155,22 @@ export const all_routes = {
   RemixIcons: "/icon-remix",
   FlagIcons: "/icon-flag",
 
-  //base-ui
-  uiAlerts: "/ui-alerts",
-  uiAccordion: "/ui-accordion",
-  uiAvatar: "/ui-avatar",
-  uiBadges: "/ui-badges",
-  uiBorders: "/ui-borders",
-  uiButtons: "/ui-buttons",
-  uiButtonsGroup: "/ui-buttons-group",
-  uiBreadcrumb: "/ui-breadcrumb",
-  uiCards: "/ui-cards",
-  uiCarousel: "/ui-carousel",
-  uiColor: "/ui-color",
-  uiDropdowns: "ui-dropdowns",
-
-  //Maps
+  // ---------- Maps ----------
   mapLeaflet: "/map-leaflet",
 
-  // settings routes
+  // ---------- Settings ----------
   customFields: "/app-settings/custom-fields",
   invoiceSettings: "/app-settings/invoice-settings",
-
   currencies: "/financial-settings/currencies",
   paymentGateways: "/financial-settings/payment-gateways",
   taxRates: "/financial-settings/tax-rates",
-
   schoolSettings: "/academic-settings/school-settings",
   religion: "/academic-settings/religion",
-
   connectedApps: "/general-settings/connected-apps",
   notificationssettings: "/general-settings/notifications-settings",
   profilesettings: "/general-settings/profile-settings",
   securitysettings: "/general-settings/security-settings",
-
-  bussinessSettings : "/website-settings/bussiness-settings",
+  bussinessSettings: "/website-settings/bussiness-settings",
   seoSettings: "/website-settings/seo-settings",
   localizationSettings: "/website-settings/localization-settings",
   prefixes: "/website-settings/prefixes",
@@ -193,11 +178,9 @@ export const all_routes = {
   appearance: "/website-settings/appearance",
   authenticationSettings: "/website-settings/authentication-settings",
   aiSettings: "/website-settings/ai-settings",
-
   salarySettings: "/app-settings/salary-settings",
   approvalSettings: "/app-settings/approval-settings",
   leaveType: "/app-settings/leave-type",
-
   banIpAddress: "/other-settings/ban-ip-address",
   customCss: "/other-settings/custom-css",
   customJs: "/other-settings/custom-js",
@@ -206,7 +189,6 @@ export const all_routes = {
   storage: "/other-settings/storage-settings",
   backup: "/other-settings/backup",
   clearcache: "/other-settings/clear-cache",
-
   emailSettings: "/system-settings/email-settings",
   emailTemplates: "/system-settings/email-templates",
   gdprCookies: "/system-settings/gdpr-cookies",
@@ -215,6 +197,7 @@ export const all_routes = {
   otpSettings: "/system-settings/otp-settings",
   maintenanceMode: "/system-settings/maintenance-mode",
 
+  // ---------- Website Settings ----------
   socialAuthentication: "/website-settings/social-authentication",
   companySettings: "/website-settings/company-settings",
   language: "/website-settings/language",
@@ -222,101 +205,51 @@ export const all_routes = {
   languageWeb: "/website-settings/language-web",
   localization: "/website-settings/localization",
 
-  //content routes
+  // ---------- Content ----------
   pages: "/content/pages",
-  countries: "countries",
+  countries: "/countries",
   states: "/content/states",
   cities: "/content/cities",
-  testimonials: "testimonials",
-  faq: "faq",
+  testimonials: "/testimonials",
+  faq: "/faq",
 
-  // blog
-  blogs: "blogs",
-  blogCategories: "blog-categories",
-  blogComments: "blog-comments",
-  blogTags: "blog-tags",
+  // ---------- Blog ----------
+  blogs: "/blogs",
+  blogCategories: "/blog-categories",
+  blogComments: "/blog-comments",
+  blogTags: "/blog-tags",
 
-  //userManagement routes
+  // ---------- User Management ----------
   deleteRequest: "/user-management/delete-request",
   rolesPermissions: "/user-management/roles-permissions",
   manageusers: "/user-management/manage-users",
   permissions: "/user-management/permissions",
 
-  //support routes
+  // ---------- Support ----------
   contactMessages: "/support/contact-messages",
   tickets: "/tickets/ticket-list",
   ticketGrid: "/tickets/ticket-grid",
   ticketList: "/support/ticket-list",
   ticketDetails: "/tickets/ticket-details",
 
-  // Performance
+  // ---------- Performance ----------
   performanceIndicator: "/performance/performance-indicator",
   performanceReview: "/performance/performance-review",
   performanceAppraisal: "/preformance/performance-appraisal",
   goalTracking: "/performance/goal-tracking",
   goalType: "/performance/goal-type",
 
-  // Training
+  // ---------- Training ----------
   trainingList: "/training/training-list",
   trainers: "/training/trainers",
   trainingType: "/training/training-type",
 
-  // membership routes
+  // ---------- Membership ----------
   membershipplan: "/membership-plans",
   membershipAddon: "/membership-addons",
   membershipTransaction: "/membership-transactions",
 
-  layoutDefault: "/layout-default",
-  layoutMini: "/layout-mini",
-  layoutRtl: "/layout-rtl",
-  layoutBox: "/layout-box",
-  layoutDark: "/layout-dark",
-  Horizontal: "/layout-horizontal",
-  Detached: "/layout-detached",
-  Hovered: "/layout-hovered",
-  Boxed: "/layout-box",
-  Modern: "/layout-modern",
-  TwoColumn: "/layout-twocolumn",
-  HorizontalSingle: "/layout-horizontal-single",
-  HorizontalOverlay: "/layout-horizontal-overlay",
-  HorizontalBox: "/layout-horizontal-box",
-  MenuAside: "/layout-horizontal-sidemenu",
-  Transparent: "/layout-transparent",
-  WithoutHeader: "/layout-without-header",
-  RTL: "/layout-rtl",
-  Dark: "/layout-dark",
-
-  // finance & accounts routes
-  accountsIncome: "/accounts/accounts-income",
-  accountsInvoices: "/accounts/accounts-invoices",
-  accountsTransactions: "/accounts/accounts-transactions",
-  expense: "/accounts/expense",
-  expenseCategory: "/accounts/expense-category",
-
-  addInvoice: "/accounts/add-invoice",
-  editInvoice: "/accounts/edit-invoice",
-  categories: "/accounting/categories",
-  budgets: "/accounting/budgets",
-  budgetexpenses: "/accounting/budgets-expenses",
-  budgetrevenues: "accounting/budget-revenues",
-  salaryComponents: "accounts/salary-components",
-  salaryComponentsCreate: "accounts/salary-components/create",
-  salaryComponentsEdit: "accounts/salary-components/edit/:id",
-
-  salaryComponents: "/accounts/salary-components",
-  salaryComponentsCreate: "/accounts/salary-components/create",
-  salaryComponentsEdit: "/accounts/salary-components/edit/:id",
-  
-  employeePayroll: "/accounts/employee-payroll",
-  employeePayrollCreate: "/accounts/employee-payroll/create",
-  employeePayrollEdit: "/accounts/employee-payroll/edit/:id",
-  
-  payslips: "/accounts/payslips",
-  payslipsView: "/accounts/payslips/view/:id",
-
-
-
-  //crm
+  // ---------- CRM ----------
   clientgrid: "/clients-grid",
   clientlist: "/clients",
   clientdetils: "/clients-details",
@@ -342,7 +275,26 @@ export const all_routes = {
   analytics: "/analytics",
   activities: "/activities",
 
-  //HRM
+  // ---------- Recruitment ----------
+  jobgrid: "/job-grid",
+  joblist: "/job-list",
+  candidatesGrid: "/candidates-grid",
+  candidateslist: "/candidates",
+  candidateskanban: "/candidates-kanban",
+  refferal: "/refferals",
+
+  // ---------- Finance & Accounts ----------
+  estimate: "/estimates",
+  invoices: "/invoices",
+  payments: "/payments",
+  expenses: "/expenses",
+  providentfund: "/provident-fund",
+  taxes: "/taxes",
+  employeesalary: "/employee-salary",
+  payslip: "/payslip",
+  payrollAddition: "/payroll",
+
+  // ---------- HRM ----------
   employeeList: "/employees",
   employeeGrid: "/employees-grid",
   departments: "/departments",
@@ -361,54 +313,17 @@ export const all_routes = {
   resignation: "/resignation",
   termination: "/termination",
   employeeAdd: "/employee-add",
+  employeedetails: "/employee-details",
 
-  // added missing HR/Admin/support routes referenced in code
-  activity: "/activity",                   // <--- ADDED (used by header/sidebar)
-  knowledgebase: "/knowledgebase",         // <--- ADDED
-  assetList: "/assets",                    // <--- ADDED
-  assetCategories: "/asset-categories",    // <--- ADDED
-  users: "/users",                         // <--- ADDED
-  rolePermission: "/roles-permissions",    // <--- ADDED (alias for rolesPermissions)
+  // ---------- Administration ----------
+  activity: "/activity",
+  knowledgebase: "/knowledgebase",
+  assetList: "/assets",
+  assetCategories: "/asset-categories",
+  users: "/users",
+  rolePermission: "/roles-permissions",
 
-  // RECRUITMENT
-  jobgrid: "/job-grid",
-  joblist: "/job-list",
-  candidatesGrid: "/candidates-grid",
-  candidateslist: "/candidates",
-  candidateskanban: "/candidates-kanban",
-  refferal: "/refferals",
-
-  //FINANCE & ACCOUNTS
-  estimate: "/estimates",
-  invoices:"/invoices",
-  addinvoice:"/add-invoices",
-  editinvoice:"/edit-invoices",
-  invoicesdetails:"/invoice-details",
-  payments: "/payments",
-  expenses: "/expenses",
-  providentfund: "/provident-fund",
-  taxes: "/taxes",
-  invoiceDetails: "/invoice-details",
-  employeesalary: "/employee-salary",
-  payslip: "/payslip",
-  payrollAddition: "/payroll",
-  payrollOvertime: "/payroll-overtime",
-  payrollDeduction: "/payroll-deduction",
-  payrollList: "/payroll",
-  addPayroll: "/payroll/add",
-  viewPayroll: "/payroll/view/:id",
-  addSalaryComponent: "/payroll/component/add",
-
-
-  //ADMINISTRATION
-//  knowledgebase: "/knowledgebase",
-  activityPage: "/activity",
- // users: "/users",
-//  rolePermission: "/roles-permissions",
-//  assetCategories: "/asset-categories",
- // assetList: "/assets",
-
-  //Report
+  // ---------- Reports ----------
   expensesreport: "/expenses-report",
   invoicereport: "/invoice-report",
   paymentreport: "/payment-report",
@@ -416,9 +331,20 @@ export const all_routes = {
   taskreport: "/task-report",
   userreport: "/user-report",
   employeereport: "/employee-report",
-  employeedetails: "/employee-details",
   payslipreport: "/payslip-report",
   attendancereport: "/attendance-report",
   leavereport: "/leave-report",
   dailyreport: "/daily-report",
+
+  // ---------- Payroll (Custom Module) ----------
+  salaryComponents: "/accounts/salary-components",
+  salaryComponentsCreate: "/accounts/salary-components/create",
+  salaryComponentsEdit: "/accounts/salary-components/edit/:id",
+
+  employeePayroll: "/accounts/employee-payroll",
+  employeePayrollCreate: "/accounts/employee-payroll/create",
+  employeePayrollEdit: "/accounts/employee-payroll/edit/:id",
+
+  payslips: "/accounts/payslips",
+  payslipsView: "/accounts/payslips/view/:id",
 };

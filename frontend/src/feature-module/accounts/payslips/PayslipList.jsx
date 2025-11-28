@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "../../../utils/axiosInstance";
+import API from "../../../api/axios";
 
 const PayslipList = () => {
   const [payslips, setPayslips] = useState([]);
@@ -8,7 +8,7 @@ const PayslipList = () => {
   // Load Payslips
   const loadPayslips = async () => {
     try {
-      const res = await axios.get("/employee-payroll/");
+      const res = await API.get("/employee-payroll/");
       setPayslips(res.data);
     } catch (error) {
       console.error("Error loading payslips:", error);
@@ -19,7 +19,7 @@ const PayslipList = () => {
     if (!window.confirm("Delete this payslip?")) return;
 
     try {
-      await axios.delete(`/employee-payroll/${id}/`);
+      await API.delete(`/employee-payroll/${id}/`);
       loadPayslips();
     } catch (error) {
       console.error("Delete failed", error);

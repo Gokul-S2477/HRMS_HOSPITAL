@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "../../../utils/axiosInstance";
+import API from "../../../api/axios";
+import { toast } from "react-toastify";
 
 const months = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
 ];
 
 const EmployeePayrollForm = () => {
@@ -13,205 +14,177 @@ const EmployeePayrollForm = () => {
 
   const [employees, setEmployees] = useState([]);
   const [components, setComponents] = useState([]);
-
   const [form, setForm] = useState({
     employee: "",
     month: "",
     year: new Date().getFullYear(),
-    components: [],
-    total_salary: 0,
+    basic_salary: "",
+    hra: "",
+    components: [], // list of component ids
   });
 
-  // Load employees + salary components from backend
+  useEffect(() => {
+    loadMeta();
+    if (id) loadData();
+  }, [id]);
+
+  const loadMeta = async () => {
+    try {
+      const [empRes, compRes] = await Promise.all([
+        API.get("/employees/"), // assuming employees endpoint exists
+        API.get("/salary-components/"),
+      ]);
+      setEmployees(empRes.data.results || empRes.data || []);
+      setComponents(compRes.data);
+    } catch (err) {
+      console.error("Failed to load meta", err);
+    }
+  };
+
   const loadData = async () => {
     try {
-      const empRes = await axios.get("/employees/?limit=200");
-      const compRes = await axios.get("/salary-components/");
-
-      setEmployees(empRes.data.results || empRes.data);
-      setComponents(compRes.data);
-    } catch (error) {
-      console.error("Load error:", error);
+      const res = await API.get(`/employee-payroll/${id}/`);
+      const d = res.data;
+      setForm({
+        employee: d.employee,
+        month: d.month,
+        year: d.year,
+        basic_salary: d.basic_salary || "",
+        hra: d.hra || "",
+        components: (d.components || []).map((c) => c.id),
+      });
+    } catch (err) {
+      console.error("Failed to load payroll", err);
     }
   };
 
-  // Load payroll data when editing
-  const loadExistingPayroll = async () => {
-    if (!id) return;
-
-    try {
-      const res = await axios.get(`/employee-payroll/${id}/`);
-      setForm(res.data);
-    } catch (error) {
-      console.error("Failed to load payroll:", error);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-    loadExistingPayroll();
-  }, []);
-
-  // Handle Inputs
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleComponentChange = (index, value) => {
-    const updated = [...form.components];
-    updated[index].amount = value;
-
-    const total = updated.reduce(
-      (sum, c) => sum + parseFloat(c.amount || 0),
-      0
-    );
-
-    setForm({
-      ...form,
-      components: updated,
-      total_salary: total,
-    });
-  };
-
-  const addComponent = () => {
-    setForm({
-      ...form,
-      components: [...form.components, { name: "", amount: 0 }]
-    });
-  };
-
-  const savePayroll = async () => {
-    try {
-      if (id) {
-        await axios.put(`/employee-payroll/${id}/`, form);
+  const handleToggleComponent = (compId) => {
+    setForm((prev) => {
+      if (prev.components.includes(compId)) {
+        return { ...prev, components: prev.components.filter((c) => c !== compId) };
       } else {
-        await axios.post("/employee-payroll/", form);
+        return { ...prev, components: [...prev.components, compId] };
       }
+    });
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...form,
+        components: form.components
+      };
+      if (id) {
+        await API.put(`/employee-payroll/${id}/`, payload);
+        toast.success("Payroll updated");
+      } else {
+        await API.post("/employee-payroll/", payload);
+        toast.success("Payroll created");
+      }
       navigate("/accounts/employee-payroll");
-    } catch (error) {
-      console.error("Save failed:", error);
-      alert("Failed to save payroll");
+    } catch (err) {
+      console.error("Save failed", err);
+      toast.error("Save failed");
     }
   };
 
   return (
-    <div className="page-wrapper">
-      <div className="content container-fluid">
+    <div>
+      <h3>{id ? "Edit" : "Create"} Employee Payroll</h3>
 
-        <div className="page-header">
-          <h3 className="page-title">
-            {id ? "Edit Payroll" : "Create Payroll"}
-          </h3>
+      <form onSubmit={handleSubmit} className="mt-3">
+        <div className="mb-3">
+          <label className="form-label">Employee</label>
+          <select
+            className="form-control"
+            value={form.employee}
+            onChange={(e) => setForm({ ...form, employee: e.target.value })}
+            required
+          >
+            <option value="">-- select employee --</option>
+            {employees.map((emp) => (
+              <option key={emp.id} value={emp.id}>
+                {emp.name || `${emp.first_name || ""} ${emp.last_name || ""}`}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="card">
-          <div className="card-body">
-
-            {/* Employee */}
-            <div className="mb-3">
-              <label className="form-label">Employee</label>
-              <select
-                className="form-control"
-                name="employee"
-                value={form.employee}
-                onChange={handleChange}
-              >
-                <option value="">Select employee</option>
-                {employees.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Month */}
-            <div className="mb-3">
-              <label className="form-label">Month</label>
-              <select
-                className="form-control"
-                name="month"
-                value={form.month}
-                onChange={handleChange}
-              >
-                <option value="">Select Month</option>
-                {months.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Year */}
-            <div className="mb-3">
-              <label className="form-label">Year</label>
-              <input
-                type="number"
-                name="year"
-                className="form-control"
-                value={form.year}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Salary Components */}
-            <h5 className="mt-4">Salary Components</h5>
-
-            {form.components.map((c, index) => (
-              <div key={index} className="row mb-3">
-                <div className="col-md-6">
-                  <select
-                    className="form-control"
-                    value={c.name}
-                    onChange={(e) => {
-                      const updated = [...form.components];
-                      updated[index].name = e.target.value;
-                      setForm({ ...form, components: updated });
-                    }}
-                  >
-                    <option value="">Select Component</option>
-                    {components.map((comp) => (
-                      <option key={comp.id} value={comp.name}>
-                        {comp.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-md-4">
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={c.amount}
-                    onChange={(e) =>
-                      handleComponentChange(index, e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-            ))}
-
-            <button
-              className="btn btn-secondary mb-3"
-              onClick={addComponent}
+        <div className="row">
+          <div className="col-md-4 mb-3">
+            <label className="form-label">Month</label>
+            <select
+              className="form-control"
+              value={form.month}
+              onChange={(e) => setForm({ ...form, month: e.target.value })}
+              required
             >
-              + Add Component
-            </button>
+              <option value="">-- select month --</option>
+              {months.map((m, idx) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            {/* Total */}
-            <div className="mt-3">
-              <h4>Total Salary: ₹ {form.total_salary}</h4>
-            </div>
+          <div className="col-md-4 mb-3">
+            <label className="form-label">Year</label>
+            <input
+              type="number"
+              className="form-control"
+              value={form.year}
+              onChange={(e) => setForm({ ...form, year: e.target.value })}
+              required
+            />
+          </div>
 
-            {/* Save Button */}
-            <button className="btn btn-primary mt-4" onClick={savePayroll}>
-              {id ? "Update Payroll" : "Create Payroll"}
-            </button>
-
+          <div className="col-md-4 mb-3">
+            <label className="form-label">Basic Salary</label>
+            <input
+              type="number"
+              className="form-control"
+              value={form.basic_salary}
+              onChange={(e) => setForm({ ...form, basic_salary: e.target.value })}
+            />
           </div>
         </div>
 
-      </div>
+        <div className="mb-3">
+          <label className="form-label">HRA</label>
+          <input
+            type="number"
+            className="form-control"
+            value={form.hra}
+            onChange={(e) => setForm({ ...form, hra: e.target.value })}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Components (add/deduct)</label>
+          <div>
+            {components.map((c) => (
+              <div key={c.id} className="form-check form-check-inline">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id={`comp-${c.id}`}
+                  checked={form.components.includes(c.id)}
+                  onChange={() => handleToggleComponent(c.id)}
+                />
+                <label className="form-check-label" htmlFor={`comp-${c.id}`}>
+                  {c.name} ({c.component_type}) - {c.amount}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button className="btn btn-primary" type="submit">
+          {id ? "Update" : "Create"}
+        </button>
+      </form>
     </div>
   );
 };
