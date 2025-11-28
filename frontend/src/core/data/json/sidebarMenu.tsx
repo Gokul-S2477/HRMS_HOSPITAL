@@ -815,19 +815,31 @@ export const SidebarDataTest = [
         icon: 'cash',
         submenuItems: [
           {
-            label: 'Employee Salary',
-            link: routes.employeesalary,
-            base: 'employee-salary',
+            label: 'Salary Components',
+            link: routes.salaryComponents,
+            base: 'salary-components',
           },
           {
-            label: 'Payslip',
-            link: routes.payslip,
-            base: 'payslip',
+            label: 'Add Salary Component',
+            link: routes.salaryComponentsCreate,
+            base: 'salary-components-create',
+          },
+        
+          {
+            label: 'Employee Payroll',
+            link: routes.employeePayroll,
+            base: 'employee-payroll',
           },
           {
-            label: 'Payroll Items',
-            link: routes.payrollAddition,
-            base: 'payroll-items',
+            label: 'Add Employee Payroll',
+            link: routes.employeePayrollCreate,
+            base: 'employee-payroll-create',
+          },
+        
+          {
+            label: 'Payslips',
+            link: routes.payslips,
+            base: 'payslips',
           },
         ],
       },

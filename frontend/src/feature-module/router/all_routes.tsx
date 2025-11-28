@@ -299,6 +299,22 @@ export const all_routes = {
   budgets: "/accounting/budgets",
   budgetexpenses: "/accounting/budgets-expenses",
   budgetrevenues: "accounting/budget-revenues",
+  salaryComponents: "accounts/salary-components",
+  salaryComponentsCreate: "accounts/salary-components/create",
+  salaryComponentsEdit: "accounts/salary-components/edit/:id",
+
+  salaryComponents: "/accounts/salary-components",
+  salaryComponentsCreate: "/accounts/salary-components/create",
+  salaryComponentsEdit: "/accounts/salary-components/edit/:id",
+  
+  employeePayroll: "/accounts/employee-payroll",
+  employeePayrollCreate: "/accounts/employee-payroll/create",
+  employeePayrollEdit: "/accounts/employee-payroll/edit/:id",
+  
+  payslips: "/accounts/payslips",
+  payslipsView: "/accounts/payslips/view/:id",
+
+
 
   //crm
   clientgrid: "/clients-grid",

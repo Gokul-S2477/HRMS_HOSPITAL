@@ -223,6 +223,15 @@ import Departments from "../mainMenu/employeeDashboard/departments";
 import Designations from "../mainMenu/employeeDashboard/designations";
 import Policies from "../mainMenu/employeeDashboard/policies";
 import EmployeeAdd from "../mainMenu/employeeDashboard/employee-add";
+// Payroll Components
+import SalaryComponentsList from "../pages/payroll/salaryComponents/SalaryComponentsList";
+import SalaryComponentsForm from "../pages/payroll/salaryComponents/SalaryComponentsForm";
+
+import EmployeePayrollList from "../pages/payroll/employeePayroll/EmployeePayrollList";
+import EmployeePayrollForm from "../pages/payroll/employeePayroll/EmployeePayrollForm";
+
+import PayslipList from "../pages/payroll/payslips/PayslipList";
+import PayslipView from "../pages/payroll/payslips/PayslipView";
 
 // ---------------------------------------------------------
 
@@ -1224,145 +1233,6 @@ export const publicRoutes = [
   },
 ];
 
-export const authRoutes = [
-  {
-    path: routes.comingSoon,
-    element: <ComingSoon />,
-    route: Route,
-  },
-  {
-    path: routes.login,
-    element: <Login />,
-    route: Route,
-  },
-  {
-    path: routes.login2,
-    element: <Login2 />,
-    route: Route,
-  },
-  {
-    path: routes.login3,
-    element: <Login3 />,
-    route: Route,
-  },
-  {
-    path: routes.register,
-    element: <Register />,
-    route: Route,
-  },
-  {
-    path: routes.twoStepVerification,
-    element: <TwoStepVerification />,
-    route: Route,
-  },
-  {
-    path: routes.twoStepVerification2,
-    element: <TwoStepVerification2 />,
-    route: Route,
-  },
-  {
-    path: routes.twoStepVerification3,
-    element: <TwoStepVerification3 />,
-    route: Route,
-  },
-  {
-    path: routes.emailVerification,
-    element: <EmailVerification />,
-    route: Route,
-  },
-  {
-    path: routes.emailVerification2,
-    element: <EmailVerification2 />,
-    route: Route,
-  },
-  {
-    path: routes.emailVerification3,
-    element: <EmailVerification3 />,
-    route: Route,
-  },
-  {
-    path: routes.register,
-    element: <Register />,
-    route: Route,
-  },
-  {
-    path: routes.register2,
-    element: <Register2 />,
-    route: Route,
-  },
-  {
-    path: routes.register3,
-    element: <Register3 />,
-    route: Route,
-  },
-  {
-    path: routes.resetPassword,
-    element: <ResetPassword />,
-    route: Route,
-  },
-  {
-    path: routes.resetPassword2,
-    element: <ResetPassword2 />,
-    route: Route,
-  },
-  {
-    path: routes.resetPassword3,
-    element: <ResetPassword3 />,
-    route: Route,
-  },
-  {
-    path: routes.forgotPassword,
-    element: <ForgotPassword />,
-    route: Route,
-  },
-  {
-    path: routes.forgotPassword2,
-    element: <ForgotPassword2 />,
-    route: Route,
-  },
-  {
-    path: routes.forgotPassword3,
-    element: <ForgotPassword3 />,
-    route: Route,
-  },
-  {
-    path: routes.error404,
-    element: <Error404 />,
-    route: Route,
-  },
-  {
-    path: routes.error500,
-    element: <Error500 />,
-    route: Route,
-  },
-  {
-    path: routes.underMaintenance,
-    element: <UnderMaintenance />,
-    route: Route,
-  },
-  {
-    path: routes.underConstruction,
-    element: <UnderConstruction />,
-  },
-  {
-    path: routes.lockScreen,
-    element: <LockScreen />,
-  },
-  {
-    path: routes.resetPasswordSuccess,
-    element: <ResetPasswordSuccess />,
-  },
-  {
-    path: routes.resetPasswordSuccess2,
-    element: <ResetPasswordSuccess2 />,
-  },
-  {
-    path: routes.resetPasswordSuccess3,
-    element: <ResetPasswordSuccess3 />,
-  },
-];
-
-
 export const protectedRoutes = [
   {
     path: routes.adminDashboard,
@@ -1380,13 +1250,10 @@ export const protectedRoutes = [
     path: routes.dealsDashboard,
     element: <DealsDashboard />,
   },
-    // ⭐ EMPLOYEE MODULE ROUTES (use routes.* constants, not hard-coded strings)
+
+  // ⭐ EMPLOYEE MODULE ROUTES
   {
-    path: routes.employeeDashboard,
-    element: <EmployeeDashboard />,
-  },
-  {
-    path: routes.employeeList,        // this points to "/employees" from all_routes
+    path: routes.employeeList,
     element: <EmployeeList />,
   },
   {
@@ -1394,25 +1261,58 @@ export const protectedRoutes = [
     element: <EmployeeAdd />,
   },
   {
-    path: routes.employeeGrid,        // "/employees-grid"
+    path: routes.employeeGrid,
     element: <EmployeeGrid />,
   },
   {
-    path: routes.employeedetails,     // "/employee-details"
+    path: routes.employeedetails,
     element: <EmployeeDetails />,
   },
   {
-    path: routes.departments,         // "/departments"
+    path: routes.departments,
     element: <Departments />,
   },
   {
-    path: routes.designations,        // "/designations"
+    path: routes.designations,
     element: <Designations />,
   },
   {
-    path: routes.policy,              // "/policy"
+    path: routes.policy,
     element: <Policies />,
   },
 
+  // ⭐ PAYROLL MODULE ROUTES
+  {
+    path: routes.salaryComponents,
+    element: <SalaryComponentsList />,
+  },
+  {
+    path: routes.salaryComponentsCreate,
+    element: <SalaryComponentsForm />,
+  },
+  {
+    path: routes.salaryComponentsEdit,   // "/accounts/salary-components/edit/:id"
+    element: <SalaryComponentsForm />,
+  },
 
-];
+  {
+    path: routes.employeePayroll,
+    element: <EmployeePayrollList />,
+  },
+  {
+    path: routes.employeePayrollCreate,
+    element: <EmployeePayrollForm />,
+  },
+  {
+    path: routes.employeePayrollEdit,   // "/accounts/employee-payroll/edit/:id"
+    element: <EmployeePayrollForm />,
+  },
+
+  {
+    path: routes.payslips,
+    element: <PayslipList />,
+  },
+  {
+    path: routes.payslipsView,          // "/accounts/payslips/view/:id"
+    element: <PayslipView />,
+  },
