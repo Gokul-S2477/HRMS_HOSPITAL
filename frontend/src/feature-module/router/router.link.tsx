@@ -82,9 +82,10 @@ export const publicRoutes = [
   { path: routes.resetPassword2, element: <ResetPassword2 />, route: Route },
   { path: routes.resetPassword3, element: <ResetPassword3 />, route: Route },
 
-  { path: routes.resetPasswordSuccess, element: <ResetPasswordSuccess />, route: Route },
-  { path: routes.resetPasswordSuccess2, element: <ResetPasswordSuccess2 />, route: Route },
-  { path: routes.resetPasswordSuccess3, element: <ResetPasswordSuccess3 />, route: Route },
+
+//  { path: routes.resetPasswordSuccess, element: <ResetPasswordSuccess />, route: Route },
+//  { path: routes.resetPasswordSuccess2, element: <ResetPasswordSuccess2 />, route: Route },
+//  { path: routes.resetPasswordSuccess3, element: <ResetPasswordSuccess3 />, route: Route },
 
   { path: routes.twoStepVerification, element: <TwoStepVerification />, route: Route },
   { path: routes.twoStepVerification2, element: <TwoStepVerification2 />, route: Route },

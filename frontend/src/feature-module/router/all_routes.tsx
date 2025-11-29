@@ -1,11 +1,12 @@
+// src/feature-module/router/all_routes.tsx
 export const all_routes = {
-  // ---------- Dashboard ----------
+  // ----- Dashboard -----
   adminDashboard: "/index",
   employeeDashboard: "/employee-dashboard",
   leadsDashboard: "/leads-dashboard",
   dealsDashboard: "/deals-dashboard",
 
-  // ---------- Application ----------
+  // ----- Application -----
   chat: "/application/chat",
   voiceCall: "/application/voice-call",
   videoCall: "/application/video-call",
@@ -22,10 +23,7 @@ export const all_routes = {
   kanbanView: "/application/kanban-view",
   invoice: "/application/invoices",
 
-  // ---------- Missing route from errors ----------
-  chart: "/application/chart",
-
-  // ---------- Super Admin ----------
+  // ----- Super Admin -----
   superAdminDashboard: "/super-admin/dashboard",
   superAdminCompanies: "/super-admin/companies",
   superAdminSubscriptions: "/super-admin/subscription",
@@ -34,13 +32,13 @@ export const all_routes = {
   superAdminDomain: "/super-admin/domain",
   superAdminPurchaseTransaction: "/super-admin/purchase-transaction",
 
-  // ---------- Basic ----------
+  // ----- Basic -----
   calendar: "/calendar",
   dataTables: "/data-tables",
   tablesBasic: "/tables-basic",
   notes: "/notes",
 
-  // ---------- Pages ----------
+  // ----- Pages -----
   starter: "/starter",
   profile: "/pages/profile",
   gallery: "/gallery",
@@ -56,7 +54,7 @@ export const all_routes = {
   privacyPolicy: "/privacy-policy",
   termscondition: "/terms-condition",
 
-  // ---------- Auth ----------
+  // ----- Auth -----
   login: "/login",
   login2: "/login-2",
   login3: "/login-3",
@@ -78,7 +76,12 @@ export const all_routes = {
   resetPassword2: "/reset-password-2",
   resetPassword3: "/reset-password-3",
 
-  // ---------- UI ----------
+  // reset password success pages (required by old screens)
+  resetPasswordSuccess: "/success",
+  resetPasswordSuccess2: "/success-2",
+  resetPasswordSuccess3: "/success-3",
+
+  // ----- UI -----
   alert: "/ui-alert",
   accordion: "/ui-accordion",
   avatar: "/ui-avatar",
@@ -121,17 +124,9 @@ export const all_routes = {
   apexChart: "/ui-apexchart",
   primeChart: "/ui-prime-chart",
   chartJs: "/ui-chart-js",
-  featherIcons: "/ui-feather-icon",
-  falgIcons: "/ui-flag-icon",
-  fontawesome: "/ui-fontawesome",
-  materialIcon: "/ui-material-icon",
-  pe7icon: "/ui-icon-pe7",
-  simpleLineIcon: "/ui-simpleline",
-  themifyIcon: "/ui-themify",
-  typicon: "/ui-typicon",
-  weatherIcon: "/ui-weather-icon",
 
-  // ---------- Forms ----------
+  
+  // ----- Forms -----
   basicInput: "/forms-basic-input",
   checkboxandRadion: "/form-checkbox-radios",
   inputGroup: "/form-input-groups",
@@ -147,7 +142,7 @@ export const all_routes = {
   reactSelect: "/select",
   formWizard: "/form-wizard",
 
-  // ---------- Icons ----------
+  // ----- Icons -----
   iconicIcon: "/icon-ionic",
   sortable: "/ui-sortable",
   swiperjs: "/ui-swiperjs",
@@ -155,10 +150,10 @@ export const all_routes = {
   RemixIcons: "/icon-remix",
   FlagIcons: "/icon-flag",
 
-  // ---------- Maps ----------
+  // ----- Maps -----
   mapLeaflet: "/map-leaflet",
 
-  // ---------- Settings ----------
+  // ----- Settings -----
   customFields: "/app-settings/custom-fields",
   invoiceSettings: "/app-settings/invoice-settings",
   currencies: "/financial-settings/currencies",
@@ -178,9 +173,11 @@ export const all_routes = {
   appearance: "/website-settings/appearance",
   authenticationSettings: "/website-settings/authentication-settings",
   aiSettings: "/website-settings/ai-settings",
+
   salarySettings: "/app-settings/salary-settings",
   approvalSettings: "/app-settings/approval-settings",
   leaveType: "/app-settings/leave-type",
+
   banIpAddress: "/other-settings/ban-ip-address",
   customCss: "/other-settings/custom-css",
   customJs: "/other-settings/custom-js",
@@ -189,6 +186,7 @@ export const all_routes = {
   storage: "/other-settings/storage-settings",
   backup: "/other-settings/backup",
   clearcache: "/other-settings/clear-cache",
+
   emailSettings: "/system-settings/email-settings",
   emailTemplates: "/system-settings/email-templates",
   gdprCookies: "/system-settings/gdpr-cookies",
@@ -197,7 +195,7 @@ export const all_routes = {
   otpSettings: "/system-settings/otp-settings",
   maintenanceMode: "/system-settings/maintenance-mode",
 
-  // ---------- Website Settings ----------
+  // Website Settings
   socialAuthentication: "/website-settings/social-authentication",
   companySettings: "/website-settings/company-settings",
   language: "/website-settings/language",
@@ -205,7 +203,7 @@ export const all_routes = {
   languageWeb: "/website-settings/language-web",
   localization: "/website-settings/localization",
 
-  // ---------- Content ----------
+  // ----- Content -----
   pages: "/content/pages",
   countries: "/countries",
   states: "/content/states",
@@ -213,43 +211,42 @@ export const all_routes = {
   testimonials: "/testimonials",
   faq: "/faq",
 
-  // ---------- Blog ----------
   blogs: "/blogs",
   blogCategories: "/blog-categories",
   blogComments: "/blog-comments",
   blogTags: "/blog-tags",
 
-  // ---------- User Management ----------
+  // ----- User Management -----
   deleteRequest: "/user-management/delete-request",
   rolesPermissions: "/user-management/roles-permissions",
   manageusers: "/user-management/manage-users",
   permissions: "/user-management/permissions",
 
-  // ---------- Support ----------
+  // ----- Support -----
   contactMessages: "/support/contact-messages",
   tickets: "/tickets/ticket-list",
   ticketGrid: "/tickets/ticket-grid",
   ticketList: "/support/ticket-list",
   ticketDetails: "/tickets/ticket-details",
 
-  // ---------- Performance ----------
+  // ----- Performance -----
   performanceIndicator: "/performance/performance-indicator",
   performanceReview: "/performance/performance-review",
   performanceAppraisal: "/preformance/performance-appraisal",
   goalTracking: "/performance/goal-tracking",
   goalType: "/performance/goal-type",
 
-  // ---------- Training ----------
+  // ----- Training -----
   trainingList: "/training/training-list",
   trainers: "/training/trainers",
   trainingType: "/training/training-type",
 
-  // ---------- Membership ----------
+  // ----- Membership -----
   membershipplan: "/membership-plans",
   membershipAddon: "/membership-addons",
   membershipTransaction: "/membership-transactions",
 
-  // ---------- CRM ----------
+  // ----- CRM -----
   clientgrid: "/clients-grid",
   clientlist: "/clients",
   clientdetils: "/clients-details",
@@ -275,7 +272,7 @@ export const all_routes = {
   analytics: "/analytics",
   activities: "/activities",
 
-  // ---------- Recruitment ----------
+  // ----- Recruitment -----
   jobgrid: "/job-grid",
   joblist: "/job-list",
   candidatesGrid: "/candidates-grid",
@@ -283,18 +280,39 @@ export const all_routes = {
   candidateskanban: "/candidates-kanban",
   refferal: "/refferals",
 
-  // ---------- Finance & Accounts ----------
+  // ----- Finance & Accounts -----
+
   estimate: "/estimates",
   invoices: "/invoices",
   payments: "/payments",
+
+  expense: "/accounts/expense",
   expenses: "/expenses",
+
   providentfund: "/provident-fund",
   taxes: "/taxes",
+
+  categories: "/accounting/categories",
+  budgets: "/accounting/budgets",
+  budgetexpenses: "/accounting/budget-expenses",
+  budgetrevenues: "/accounting/budget-revenues",
+
   employeesalary: "/employee-salary",
   payslip: "/payslip",
-  payrollAddition: "/payroll",
 
-  // ---------- HRM ----------
+  // Payroll → ***NO DUPLICATES HERE***
+  payslips: "/accounts/payslips",
+  payslipsView: "/accounts/payslips/view/:id",
+
+  payrollAddition: "/payroll",
+  payrollOvertime: "/payroll-overtime",
+  payrollDeduction: "/payroll-deduction",
+  payrollList: "/payroll",
+  addPayroll: "/payroll/add",
+  viewPayroll: "/payroll/view/:id",
+  addSalaryComponent: "/payroll/component/add",
+
+  // ----- HRM -----
   employeeList: "/employees",
   employeeGrid: "/employees-grid",
   departments: "/departments",
@@ -315,7 +333,7 @@ export const all_routes = {
   employeeAdd: "/employee-add",
   employeedetails: "/employee-details",
 
-  // ---------- Administration ----------
+  // ----- Admin -----
   activity: "/activity",
   knowledgebase: "/knowledgebase",
   assetList: "/assets",
@@ -323,7 +341,7 @@ export const all_routes = {
   users: "/users",
   rolePermission: "/roles-permissions",
 
-  // ---------- Reports ----------
+  // ----- Reports -----
   expensesreport: "/expenses-report",
   invoicereport: "/invoice-report",
   paymentreport: "/payment-report",
@@ -336,7 +354,7 @@ export const all_routes = {
   leavereport: "/leave-report",
   dailyreport: "/daily-report",
 
-  // ---------- Payroll (Custom Module) ----------
+  // ----- Our Payroll Module -----
   salaryComponents: "/accounts/salary-components",
   salaryComponentsCreate: "/accounts/salary-components/create",
   salaryComponentsEdit: "/accounts/salary-components/edit/:id",
@@ -345,6 +363,41 @@ export const all_routes = {
   employeePayrollCreate: "/accounts/employee-payroll/create",
   employeePayrollEdit: "/accounts/employee-payroll/edit/:id",
 
-  payslips: "/accounts/payslips",
-  payslipsView: "/accounts/payslips/view/:id",
+  // ----- Layout -----
+  layoutDefault: "/layout-default",
+  layoutMini: "/layout-mini",
+  layoutRtl: "/layout-rtl",
+  layoutBox: "/layout-box",
+  Horizontal: "/layout-horizontal",
+  Detached: "/layout-detached",
+  Hovered: "/layout-hovered",
+  Boxed: "/layout-box",
+  Modern: "/layout-modern",
+  TwoColumn: "/layout-two-column",
+  HorizontalSingle: "/layout-horizontal-single",
+  HorizontalOverlay: "/layout-horizontal-overlay",
+  HorizontalBox: "/layout-horizontal-box",
+  MenuAside: "/layout-horizontal-sidemenu",
+  Transparent: "/layout-transparent",
+  WithoutHeader: "/layout-without-header",
+  RTL: "/layout-rtl",
+  Dark: "/layout-dark",
+
+    // ----- Icon Routes (Required by Sidebar & Horizontal Menu) -----
+  fontawesome: "/ui-fontawesome",
+  featherIcons: "/ui-feather-icon",
+  materialIcon: "/ui-material-icon",
+  pe7icon: "/ui-icon-pe7",
+  simpleLineIcon: "/ui-simpleline",
+  themifyIcon: "/ui-themify",
+  typicon: "/ui-typicon",
+  weatherIcon: "/ui-weather-icon",
+
+  // ----- Chart Alias Required by callerDetailsModal -----
+  chart: "/ui-chart-js",
+
 };
+
+export default all_routes;
+
+
