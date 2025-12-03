@@ -1,12 +1,11 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+const axiosInstance = axios.create({
+  baseURL: "http://127.0.0.1:8000/api/",
   withCredentials: false,
 });
 
-// Attach JWT Token Automatically
-API.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
@@ -20,4 +19,4 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export default API;
+export default axiosInstance;

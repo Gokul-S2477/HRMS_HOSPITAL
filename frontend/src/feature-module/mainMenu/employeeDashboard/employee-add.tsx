@@ -17,8 +17,17 @@ type PermissionSet = {
 };
 
 const MODULES = [
-  "Holidays","Leaves","Clients","Projects","Tasks",
-  "Chats","Assets","TimingSheets","Payroll","Attendance","Reports"
+  "Holidays",
+  "Leaves",
+  "Clients",
+  "Projects",
+  "Tasks",
+  "Chats",
+  "Assets",
+  "TimingSheets",
+  "Payroll",
+  "Attendance",
+  "Reports",
 ];
 
 const useQuery = () => new URLSearchParams(useLocation().search);
@@ -34,51 +43,72 @@ const EmployeeAdd: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
+  // Permissions defaults
   const defaultPermissions: Record<string, PermissionSet> = {};
   MODULES.forEach((m) => {
     defaultPermissions[m] = {
-      read: false, write: false, create: false,
-      delete: false, import: false, export: false,
+      read: false,
+      write: false,
+      create: false,
+      delete: false,
+      import: false,
+      export: false,
     };
   });
 
-  const [permissions, setPermissions] =
-    useState<Record<string, PermissionSet>>({ ...defaultPermissions });
+  const [permissions, setPermissions] = useState<Record<string, PermissionSet>>({
+    ...defaultPermissions,
+  });
 
   const [permissionsSelectAll, setPermissionsSelectAll] = useState(false);
 
-  // FIXED → use department_id & designation_id (no UI change)
+  // Correct form state
   const [formData, setFormData] = useState<any>({
-    emp_code: "", first_name: "", middle_name: "", last_name: "",
-    email: "", phone: "", alternate_phone: "", address: "",
-    joining_date: "", employment_type: "Full-Time", role: "Other",
+    emp_code: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    alternate_phone: "",
+    address: "",
+    joining_date: "",
+    employment_type: "Full-Time",
+    role: "Other",
 
-    department_id: "",        // FIXED: previously `department`
-    designation_id: "",       // FIXED: previously `designation`
+    department_id: "",
+    designation_id: "",
 
-    salary: "", is_active: true,
-    gender: "", date_of_birth: "", emergency_contact_name: "",
-    emergency_contact_number: "", reporting_to: "",
-    national_id: "", blood_group: "", marital_status: "Single",
-    work_shift: "", work_location: ""
+    salary: "",
+    is_active: true,
+    gender: "",
+    date_of_birth: "",
+    emergency_contact_name: "",
+    emergency_contact_number: "",
+    reporting_to: "",
+    national_id: "",
+    blood_group: "",
+    marital_status: "Single",
+    work_shift: "",
+    work_location: "",
   });
 
-  // Fetch dropdown data
+  // Fetch dropdowns
   useEffect(() => {
     const load = async () => {
       try {
-        const [dept, desig, emp] = await Promise.all([
-          API.get("/departments/"),
-          API.get("/designations/"),
-          API.get("/employees/?limit=200")
+        const [deptRes, desigRes, empRes] = await Promise.all([
+          API.get("departments/"),
+          API.get("designations/"),
+          API.get("employees/"),
         ]);
 
-        setDepartments(dept.data || []);
-        setDesignations(desig.data || []);
+        setDepartments(deptRes.data || []);
+        setDesignations(desigRes.data || []);
 
-        const empList = Array.isArray(emp.data)
-          ? emp.data
-          : emp.data.results || [];
+        const empList = Array.isArray(empRes.data)
+          ? empRes.data
+          : empRes.data.results || [];
 
         setReportingOptions(
           empList.map((e: any) => ({
@@ -89,19 +119,19 @@ const EmployeeAdd: React.FC = () => {
           }))
         );
       } catch (err) {
-        console.error("Dropdown Load Error:", err);
+        console.error("Meta Load Error:", err);
       }
     };
     load();
   }, []);
 
-  // Load edit employee
+  // Load employee for editing
   useEffect(() => {
     if (!editId) return;
 
     (async () => {
       try {
-        const res = await API.get(`/employees/${editId}/`);
+        const res = await API.get(`employees/${editId}/`);
         const emp = res.data;
 
         setFormData({
@@ -117,7 +147,6 @@ const EmployeeAdd: React.FC = () => {
           employment_type: emp.employment_type ?? "Full-Time",
           role: emp.role ?? "Other",
 
-          // FIXED: prefill FK ids into department_id & designation_id
           department_id: emp.department ? String(emp.department.id) : "",
           designation_id: emp.designation ? String(emp.designation.id) : "",
 
@@ -135,7 +164,7 @@ const EmployeeAdd: React.FC = () => {
           work_location: emp.work_location ?? "",
         });
 
-        // permissions
+        // Permissions load
         if (emp.permissions) {
           try {
             const parsed =
@@ -154,28 +183,28 @@ const EmployeeAdd: React.FC = () => {
                 export: !!parsed[m]?.export,
               };
             });
+
             setPermissions(mapped);
             setPermissionsSelectAll(
-              MODULES.every((m) =>
-                Object.values(mapped[m]).some((v) => v)
-              )
+              MODULES.every((m) => Object.values(mapped[m]).some((v) => v))
             );
           } catch {
             setPermissions({ ...defaultPermissions });
           }
         }
       } catch (err) {
-        console.error("Employee Load:", err);
+        console.error("Employee Load Error:", err);
       }
     })();
   }, [editId]);
 
+  // Photo handler
   const handlePhotoChange = (e: any) => {
     const f = e.target.files?.[0];
     if (f) setPhotoFile(f);
   };
 
-  // Toggle Permission
+  // Toggle permission
   const togglePermission = (
     module: string,
     key: keyof PermissionSet,
@@ -187,6 +216,7 @@ const EmployeeAdd: React.FC = () => {
     }));
   };
 
+  // Select all permissions
   const handleSelectAll = (value: boolean) => {
     const all: Record<string, PermissionSet> = {};
     MODULES.forEach((m) => {
@@ -199,14 +229,14 @@ const EmployeeAdd: React.FC = () => {
         export: value,
       };
     });
+
     setPermissions(all);
     setPermissionsSelectAll(value);
   };
 
-  // FINAL FIX → prevent empty strings from breaking backend
+  // Prevent empty FKs in FormData
   const cleanFormValue = (key: string, value: any) => {
     if (value === "" || value === null || value === undefined) {
-      // DO NOT SEND empty foreign keys
       if (["department_id", "designation_id", "reporting_to"].includes(key)) {
         return null;
       }
@@ -214,6 +244,7 @@ const EmployeeAdd: React.FC = () => {
     return value;
   };
 
+  // Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -233,21 +264,21 @@ const EmployeeAdd: React.FC = () => {
       payload.append("permissions", JSON.stringify(permissions));
 
       if (editId) {
-        await API.put(`/employees/${editId}/`, payload, {
+        await API.put(`employees/${editId}/`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         alert("Employee updated!");
       } else {
-        await API.post(`/employees/`, payload, {
+        await API.post("employees/", payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         alert("Employee created!");
       }
 
-      navigate("/employees");
+      navigate("/employee-list");
     } catch (err) {
       console.error("Submit Error:", err);
-      alert("Save failed. Check console.");
+      alert("Error saving employee.");
     } finally {
       setIsSubmitting(false);
     }
@@ -260,16 +291,18 @@ const EmployeeAdd: React.FC = () => {
         {/* Header */}
         <div className="page-header mb-3 d-flex justify-content-between align-items-center">
           <div>
-            <h2 className="page-title">{editId ? "Edit Employee" : "Add Employee"}</h2>
+            <h2 className="page-title">
+              {editId ? "Edit Employee" : "Add Employee"}
+            </h2>
             <small className="text-muted">
-              {editId ? "Update employee details" : "Add new employee details"}
+              {editId ? "Update employee details" : "Create a new employee"}
             </small>
           </div>
 
           <div>
             <button
               className="btn btn-secondary me-2"
-              onClick={() => navigate("/employees")}
+              onClick={() => navigate("/employee-list")}
             >
               Back
             </button>
@@ -283,100 +316,123 @@ const EmployeeAdd: React.FC = () => {
         {/* Card */}
         <div className="card p-3">
           <form id="empForm" onSubmit={handleSubmit}>
-            {/* TABS */}
             <ul className="nav nav-tabs mb-3">
               <li className="nav-item">
                 <button
                   className="nav-link active"
                   data-bs-toggle="tab"
-                  data-bs-target="#basic"
                   type="button"
+                  data-bs-target="#basic"
                 >
                   Basic
                 </button>
               </li>
+
               <li className="nav-item">
                 <button
                   className="nav-link"
                   data-bs-toggle="tab"
-                  data-bs-target="#permissions"
                   type="button"
+                  data-bs-target="#permissions"
                 >
                   Permissions
                 </button>
               </li>
             </ul>
 
-            {/* CONTENT */}
             <div className="tab-content">
-
-              {/* BASIC TAB */}
+              {/* BASIC */}
               <div className="tab-pane fade show active" id="basic">
                 <div className="row g-3">
 
                   <div className="col-md-3">
                     <label className="form-label">Profile Photo</label>
-                    <input type="file" className="form-control" accept="image/*" onChange={handlePhotoChange} />
+                    <input type="file" className="form-control" onChange={handlePhotoChange} />
                   </div>
 
                   <div className="col-md-3">
                     <label className="form-label">Employee ID</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.emp_code}
-                      onChange={(e) => setFormData({ ...formData, emp_code: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, emp_code: e.target.value })
+                      }
                       required
                     />
                   </div>
 
                   <div className="col-md-3">
                     <label className="form-label">First Name</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.first_name}
-                      onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, first_name: e.target.value })
+                      }
                       required
                     />
                   </div>
 
                   <div className="col-md-3">
                     <label className="form-label">Last Name</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.last_name}
-                      onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, last_name: e.target.value })
+                      }
                     />
                   </div>
 
                   {/* Contact */}
                   <div className="col-md-3">
                     <label className="form-label">Email</label>
-                    <input type="email" className="form-control"
+                    <input
+                      type="email"
+                      className="form-control"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                       required
                     />
                   </div>
 
                   <div className="col-md-3">
                     <label className="form-label">Phone</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
                     />
                   </div>
 
                   <div className="col-md-3">
                     <label className="form-label">Alternate Phone</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.alternate_phone}
-                      onChange={(e) => setFormData({ ...formData, alternate_phone: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          alternate_phone: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
                   {/* Gender */}
                   <div className="col-md-3">
                     <label className="form-label">Gender</label>
-                    <select className="form-select"
+                    <select
+                      className="form-select"
                       value={formData.gender}
-                      onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, gender: e.target.value })
+                      }
                     >
                       <option value="">Select</option>
                       <option value="Male">Male</option>
@@ -388,22 +444,37 @@ const EmployeeAdd: React.FC = () => {
                   {/* DOB */}
                   <div className="col-md-3">
                     <label className="form-label">Date of Birth</label>
-                    <input type="date" className="form-control"
+                    <input
+                      type="date"
+                      className="form-control"
                       value={formData.date_of_birth}
-                      onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          date_of_birth: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
                   {/* Department */}
                   <div className="col-md-3">
                     <label className="form-label">Department</label>
-                    <select className="form-select"
+                    <select
+                      className="form-select"
                       value={formData.department_id}
-                      onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          department_id: e.target.value,
+                        })
+                      }
                     >
                       <option value="">Select</option>
                       {departments.map((d) => (
-                        <option key={d.id} value={String(d.id)}>{d.name}</option>
+                        <option key={d.id} value={String(d.id)}>
+                          {d.name}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -411,13 +482,21 @@ const EmployeeAdd: React.FC = () => {
                   {/* Designation */}
                   <div className="col-md-3">
                     <label className="form-label">Designation</label>
-                    <select className="form-select"
+                    <select
+                      className="form-select"
                       value={formData.designation_id}
-                      onChange={(e) => setFormData({ ...formData, designation_id: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          designation_id: e.target.value,
+                        })
+                      }
                     >
                       <option value="">Select</option>
                       {designations.map((d) => (
-                        <option key={d.id} value={String(d.id)}>{d.title}</option>
+                        <option key={d.id} value={String(d.id)}>
+                          {d.title}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -425,18 +504,27 @@ const EmployeeAdd: React.FC = () => {
                   {/* Role */}
                   <div className="col-md-3">
                     <label className="form-label">Role</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.role}
-                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, role: e.target.value })
+                      }
                     />
                   </div>
 
                   {/* Reporting To */}
                   <div className="col-md-3">
                     <label className="form-label">Reporting To</label>
-                    <select className="form-select"
+                    <select
+                      className="form-select"
                       value={formData.reporting_to}
-                      onChange={(e) => setFormData({ ...formData, reporting_to: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          reporting_to: e.target.value,
+                        })
+                      }
                     >
                       <option value="">None</option>
                       {reportingOptions.map((r) => (
@@ -449,21 +537,34 @@ const EmployeeAdd: React.FC = () => {
                     </select>
                   </div>
 
-                  {/* Join Date */}
+                  {/* Joining */}
                   <div className="col-md-3">
                     <label className="form-label">Joining Date</label>
-                    <input type="date" className="form-control"
+                    <input
+                      type="date"
+                      className="form-control"
                       value={formData.joining_date}
-                      onChange={(e) => setFormData({ ...formData, joining_date: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          joining_date: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
-                  {/* Emp Type */}
+                  {/* Employment Type */}
                   <div className="col-md-3">
                     <label className="form-label">Employment Type</label>
-                    <select className="form-select"
+                    <select
+                      className="form-select"
                       value={formData.employment_type}
-                      onChange={(e) => setFormData({ ...formData, employment_type: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          employment_type: e.target.value,
+                        })
+                      }
                     >
                       <option>Full-Time</option>
                       <option>Part-Time</option>
@@ -475,36 +576,57 @@ const EmployeeAdd: React.FC = () => {
                   {/* Salary */}
                   <div className="col-md-3">
                     <label className="form-label">Salary</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.salary}
-                      onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, salary: e.target.value })
+                      }
                     />
                   </div>
 
                   {/* National ID */}
                   <div className="col-md-3">
                     <label className="form-label">National ID</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.national_id}
-                      onChange={(e) => setFormData({ ...formData, national_id: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          national_id: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
                   {/* Blood Group */}
                   <div className="col-md-3">
                     <label className="form-label">Blood Group</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.blood_group}
-                      onChange={(e) => setFormData({ ...formData, blood_group: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          blood_group: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
                   {/* Marital Status */}
                   <div className="col-md-3">
                     <label className="form-label">Marital Status</label>
-                    <select className="form-select"
+                    <select
+                      className="form-select"
                       value={formData.marital_status}
-                      onChange={(e) => setFormData({ ...formData, marital_status: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          marital_status: e.target.value,
+                        })
+                      }
                     >
                       <option value="Single">Single</option>
                       <option value="Married">Married</option>
@@ -516,52 +638,78 @@ const EmployeeAdd: React.FC = () => {
                   {/* Work Shift */}
                   <div className="col-md-3">
                     <label className="form-label">Work Shift</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.work_shift}
-                      onChange={(e) => setFormData({ ...formData, work_shift: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          work_shift: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
                   {/* Work Location */}
                   <div className="col-md-3">
                     <label className="form-label">Work Location</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.work_location}
-                      onChange={(e) => setFormData({ ...formData, work_location: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          work_location: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
                   {/* Address */}
                   <div className="col-md-12">
                     <label className="form-label">Address</label>
-                    <textarea className="form-control"
+                    <textarea
+                      className="form-control"
                       rows={3}
                       value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
                     />
                   </div>
 
                   {/* Emergency */}
                   <div className="col-md-4">
                     <label className="form-label">Emergency Contact Name</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.emergency_contact_name}
-                      onChange={(e) => setFormData({ ...formData, emergency_contact_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          emergency_contact_name: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
                   <div className="col-md-4">
                     <label className="form-label">Emergency Contact Number</label>
-                    <input className="form-control"
+                    <input
+                      className="form-control"
                       value={formData.emergency_contact_number}
-                      onChange={(e) => setFormData({ ...formData, emergency_contact_number: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          emergency_contact_number: e.target.value,
+                        })
+                      }
                     />
                   </div>
-
                 </div>
               </div>
 
-              {/* PERMISSIONS TAB */}
+              {/* PERMISSIONS */}
               <div className="tab-pane fade" id="permissions">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <strong>Permissions</strong>
@@ -595,17 +743,16 @@ const EmployeeAdd: React.FC = () => {
                       {MODULES.map((m) => (
                         <tr key={m}>
                           <td>{m}</td>
-                          {(["read", "write", "create", "delete", "import", "export"] as (keyof PermissionSet)[]).map((p) => (
-                            <td key={p}>
+
+                          {(
+                            ["read", "write", "create", "delete", "import", "export"] as (keyof PermissionSet)[]
+                          ).map((perm) => (
+                            <td key={perm}>
                               <input
                                 type="checkbox"
-                                checked={!!permissions[m]?.[p]}
-                                onChange={(ev) =>
-                                  togglePermission(
-                                    m,
-                                    p,
-                                    (ev.target as HTMLInputElement).checked
-                                  )
+                                checked={permissions[m][perm]}
+                                onChange={(e) =>
+                                  togglePermission(m, perm, e.target.checked)
                                 }
                               />
                             </td>

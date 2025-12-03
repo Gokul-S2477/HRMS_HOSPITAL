@@ -34,8 +34,8 @@ class DesignationSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "description",
-            "department_id",       # write-only FK
-            "department_detail",   # read-only nested object
+            "department_id",        # write-only FK
+            "department_detail",    # read-only nested
         )
         read_only_fields = ("department_detail",)
 
@@ -49,7 +49,10 @@ class EmployeeSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer(read_only=True)
     designation = DesignationSerializer(read_only=True)
 
-    # WRITE-ONLY fields
+    # READ reporting_to employee details
+    reporting_to_detail = serializers.SerializerMethodField(read_only=True)
+
+    # WRITE-ONLY FKs
     department_id = serializers.PrimaryKeyRelatedField(
         queryset=Department.objects.all(),
         source="department",
@@ -71,6 +74,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
         allow_null=True,
         required=False
     )
+
+    # SAFE PHOTO UPLOAD HANDLING
+    photo = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Employee
@@ -103,6 +109,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "joining_date",
             "employment_type",
             "reporting_to",
+            "reporting_to_detail",
 
             # HR Info
             "national_id",
@@ -125,12 +132,20 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ("created_at", "updated_at")
+        read_only_fields = ("created_at", "updated_at", "reporting_to_detail")
+
+    # =======================================================
+    # Get reporting_to employee info (name + id)
+    # =======================================================
+    def get_reporting_to_detail(self, obj):
+        if obj.reporting_to:
+            return {
+                "id": obj.reporting_to.id,
+                "name": f"{obj.reporting_to.first_name} {obj.reporting_to.last_name or ''}"
+            }
+        return None
 
 
-# ==============================================================
-#                     POLICY SERIALIZER
-# ==============================================================
 # ==============================================================
 #                     POLICY SERIALIZER
 # ==============================================================
@@ -139,7 +154,7 @@ class PolicySerializer(serializers.ModelSerializer):
     # Read-only nested department
     department_detail = DepartmentSerializer(source="department", read_only=True)
 
-    # Write-only FK field (IMPORTANT)
+    # Write-only FK
     department_id = serializers.PrimaryKeyRelatedField(
         queryset=Department.objects.all(),
         source="department",
@@ -155,8 +170,8 @@ class PolicySerializer(serializers.ModelSerializer):
             "title",
             "appraisal_date",
 
-            "department_id",      # ← write-only
-            "department_detail",  # ← read-only nested
+            "department_id",       # write-only
+            "department_detail",   # read-only nested
 
             "description",
             "file",

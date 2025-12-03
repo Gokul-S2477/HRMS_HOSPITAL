@@ -1,7 +1,7 @@
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
 from datetime import date, timedelta
@@ -24,16 +24,24 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         "department", "designation", "reporting_to"
     )
     serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated]
 
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend
+    ]
+
     search_fields = [
         "emp_code", "first_name", "middle_name", "last_name",
         "email", "phone", "alternate_phone"
     ]
+
     ordering_fields = ["joining_date", "first_name", "last_name"]
+    filterset_fields = ["department", "designation", "employment_type", "is_active"]
 
     def get_queryset(self):
-        qs = Employee.objects.all().select_related("department", "designation")
+        qs = self.queryset
 
         dept = self.request.query_params.get("department")
         desig = self.request.query_params.get("designation")
@@ -56,35 +64,42 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
         return qs
 
-    # ===== birthday in next 7 days =====
+    # ===== Birthday in next 7 days =====
     @action(detail=False, methods=["get"])
     def birthdays(self, request):
         today = date.today()
         end = today + timedelta(days=7)
-        res = []
 
-        for emp in Employee.objects.exclude(date_of_birth__isnull=True):
-            dob = emp.date_of_birth.replace(year=today.year)
-            if today <= dob <= end:
-                res.append(emp)
+        qs = Employee.objects.exclude(date_of_birth__isnull=True)
+        result = []
 
-        return Response(EmployeeSerializer(res, many=True).data)
+        for emp in qs:
+            try:
+                dob_this_year = emp.date_of_birth.replace(year=today.year)
+            except ValueError:
+                # Handles Feb 29 on non-leap years
+                dob_this_year = emp.date_of_birth.replace(year=today.year, day=28)
 
-    # ===== birthday this month =====
+            if today <= dob_this_year <= end:
+                result.append(emp)
+
+        return Response(EmployeeSerializer(result, many=True).data)
+
+    # ===== Birthday this month =====
     @action(detail=False, methods=["get"])
     def upcoming_birthdays(self, request):
         today = date.today()
         qs = Employee.objects.filter(date_of_birth__month=today.month)
         return Response(EmployeeSerializer(qs, many=True).data)
 
-    # ===== new hires =====
+    # ===== New hires in last 30 days =====
     @action(detail=False, methods=["get"])
     def new_hires(self, request):
         cutoff = timezone.now().date() - timedelta(days=30)
         qs = Employee.objects.filter(joining_date__gte=cutoff)
         return Response(EmployeeSerializer(qs, many=True).data)
 
-    # ===== employee counts =====
+    # ===== Employee counts =====
     @action(detail=False, methods=["get"])
     def count(self, request):
         return Response({
@@ -93,10 +108,13 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             "inactive": Employee.objects.filter(is_active=False).count(),
         })
 
-    # ===== department employee count =====
+    # ===== Department counts =====
     @action(detail=False, methods=["get"])
     def department_counts(self, request):
-        data = {str(d.id): d.employees.count() for d in Department.objects.all()}
+        data = {
+            d.name: d.employees.count()
+            for d in Department.objects.all()
+        }
         return Response(data)
 
 
@@ -106,7 +124,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
 # =====================================================
@@ -115,7 +133,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 class DesignationViewSet(viewsets.ModelViewSet):
     queryset = Designation.objects.all().select_related("department")
     serializer_class = DesignationSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ["department"]
@@ -128,6 +146,7 @@ class DesignationViewSet(viewsets.ModelViewSet):
 class PolicyViewSet(viewsets.ModelViewSet):
     queryset = Policy.objects.all().select_related("department")
     serializer_class = PolicySerializer
+    permission_classes = [IsAuthenticated]
 
     parser_classes = (MultiPartParser, FormParser)
 
@@ -142,25 +161,16 @@ class PolicyViewSet(viewsets.ModelViewSet):
     filterset_fields = ["department"]
 
     def get_queryset(self):
-        qs = Policy.objects.all().select_related("department")
+        qs = self.queryset
 
         dept = self.request.query_params.get("department")
         frm = self.request.query_params.get("from")
         to = self.request.query_params.get("to")
 
         if dept and dept != "all":
-            try:
-                qs = qs.filter(department_id=int(dept))
-            except:
-                pass
+            qs = qs.filter(department_id=dept)
 
         if frm and to:
             qs = qs.filter(created_at__date__range=[frm, to])
 
         return qs
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)

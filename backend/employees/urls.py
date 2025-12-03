@@ -8,18 +8,20 @@ from .views import (
     PolicyViewSet,
 )
 
+app_name = "employees"   # Prevents reverse-url conflicts
+
 router = DefaultRouter()
 
 # Employee CRUD
 router.register(r'employees', EmployeeViewSet, basename='employees')
 
-# Departments CRUD
+# Department CRUD
 router.register(r'departments', DepartmentViewSet, basename='departments')
 
-# Designations CRUD
+# Designation CRUD
 router.register(r'designations', DesignationViewSet, basename='designations')
 
-# Policies CRUD
+# Policy CRUD
 router.register(r'policies', PolicyViewSet, basename='policies')
 
 urlpatterns = router.urls

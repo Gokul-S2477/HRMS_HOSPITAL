@@ -8,23 +8,26 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Authentication
-    path('api/', include('users.auth_urls')),
+    # AUTH
+    path('api/auth/', include('users.auth_urls')),
 
-    # App APIs
-    path('api/', include('users.urls')),
-    path('api/', include('employees.urls')),   # Employees + Departments + Designations + Policies
-    path('api/', include('attendance.urls')),
-    path('api/', include('payroll.urls')),
-    path('api/', include('dashboard.urls')),
+    # USERS
+    path('api/users/', include('users.urls')),
 
+    # EMPLOYEES + DEPARTMENTS + DESIGNATIONS + POLICIES  (IMPORTANT)
+    path('api/', include('employees.urls')),
 
+    # ATTENDANCE
+    path('api/attendance/', include('attendance.urls')),
 
+    # PAYROLL
+    path('api/payroll/', include('payroll.urls')),
 
-    # DRF login (helps with form-data / file uploads)
+    # DASHBOARD
+    path('api/dashboard/', include('dashboard.urls')),
+
     path('api-auth/', include('rest_framework.urls')),
 ]
 
-# Media file support for file uploads (policy file, employee photo)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

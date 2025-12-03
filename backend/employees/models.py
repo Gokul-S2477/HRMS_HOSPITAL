@@ -5,7 +5,7 @@ from django.db import models
 #            DEPARTMENT
 # ======================================
 class Department(models.Model):
-    name = models.CharField(max_length=120, unique=True)
+    name = models.CharField(max_length=120, unique=True, db_index=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -19,7 +19,6 @@ class Designation(models.Model):
     title = models.CharField(max_length=120, unique=True)
     description = models.TextField(blank=True, null=True)
 
-    # 🔥 Department linked to designation
     department = models.ForeignKey(
         Department,
         on_delete=models.SET_NULL,
@@ -62,7 +61,7 @@ class Employee(models.Model):
     ]
 
     # Basic Details
-    emp_code = models.CharField(max_length=50, unique=True, verbose_name="Employee ID")
+    emp_code = models.CharField(max_length=50, unique=True, verbose_name="Employee ID", db_index=True)
     first_name = models.CharField(max_length=120)
     middle_name = models.CharField(max_length=120, blank=True, null=True)
     last_name = models.CharField(max_length=120, blank=True)
@@ -70,7 +69,7 @@ class Employee(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
 
     # Contact
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, db_index=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     alternate_phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
@@ -81,16 +80,34 @@ class Employee(models.Model):
 
     # Work Info
     role = models.CharField(max_length=60, choices=EMPLOYEE_ROLES, default='Other')
+
     department = models.ForeignKey(
-        Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees"
+        Department,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="employees",
+        db_index=True
     )
+
     designation = models.ForeignKey(
-        Designation, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees"
+        Designation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="employees",
+        db_index=True
     )
+
     joining_date = models.DateField(null=True, blank=True)
     employment_type = models.CharField(max_length=30, choices=EMPLOYMENT_TYPES, default='Full-Time')
+
     reporting_to = models.ForeignKey(
-        'self', null=True, blank=True, on_delete=models.SET_NULL, related_name="subordinates"
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="subordinates"
     )
 
     # Extra HR Info
