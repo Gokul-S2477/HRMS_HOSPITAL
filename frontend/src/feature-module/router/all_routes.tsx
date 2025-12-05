@@ -1,4 +1,5 @@
 // src/feature-module/router/all_routes.tsx
+
 export const all_routes = {
   // ----- Dashboard -----
   adminDashboard: "/index",
@@ -75,8 +76,6 @@ export const all_routes = {
   resetPassword: "/reset-password",
   resetPassword2: "/reset-password-2",
   resetPassword3: "/reset-password-3",
-
-  // reset password success pages (required by old screens)
   resetPasswordSuccess: "/success",
   resetPasswordSuccess2: "/success-2",
   resetPasswordSuccess3: "/success-3",
@@ -125,7 +124,6 @@ export const all_routes = {
   primeChart: "/ui-prime-chart",
   chartJs: "/ui-chart-js",
 
-  
   // ----- Forms -----
   basicInput: "/forms-basic-input",
   checkboxandRadion: "/form-checkbox-radios",
@@ -281,11 +279,9 @@ export const all_routes = {
   refferal: "/refferals",
 
   // ----- Finance & Accounts -----
-
   estimate: "/estimates",
   invoices: "/invoices",
   payments: "/payments",
-
   expense: "/accounts/expense",
   expenses: "/expenses",
 
@@ -313,7 +309,8 @@ export const all_routes = {
   addSalaryComponent: "/payroll/component/add",
 
   // ----- HRM -----
-  employeeList: "/employees",
+  employeeList: "/employee-list",   // ⭐ FIXED ROUTE FOR EMPLOYEE ADD REDIRECT
+  employees: "/employees",          // (kept old route to avoid breaking anything)
   employeeGrid: "/employees-grid",
   departments: "/departments",
   designations: "/designations",
@@ -383,7 +380,7 @@ export const all_routes = {
   RTL: "/layout-rtl",
   Dark: "/layout-dark",
 
-    // ----- Icon Routes (Required by Sidebar & Horizontal Menu) -----
+  // ----- Icon Routes -----
   fontawesome: "/ui-fontawesome",
   featherIcons: "/ui-feather-icon",
   materialIcon: "/ui-material-icon",
@@ -393,11 +390,8 @@ export const all_routes = {
   typicon: "/ui-typicon",
   weatherIcon: "/ui-weather-icon",
 
-  // ----- Chart Alias Required by callerDetailsModal -----
+  // ----- Chart Alias -----
   chart: "/ui-chart-js",
-
 };
 
 export default all_routes;
-
-

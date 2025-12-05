@@ -26,12 +26,12 @@ const Login = () => {
     }));
   };
 
-  // ⭐ FIXED LOGIN FUNCTION — correct endpoint /token/
+  // ⭐ UPDATED LOGIN FUNCTION — correct endpoint /auth/token/
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const res = await API.post("/token/", {
+      const res = await API.post("auth/token/", {
         username: username,
         password: password,
       });
@@ -43,7 +43,7 @@ const Login = () => {
         localStorage.setItem("token", res.data.access);
       }
 
-      // TEMPORARY redirect — later we will do role-based redirect
+      // Redirect
       navigate(routes.adminDashboard);
 
     } catch (error: any) {
@@ -175,7 +175,7 @@ const Login = () => {
                         <span className="span-or">Or</span>
                       </div>
 
-                      {/* SOCIAL SECTION (unchanged) */}
+                      {/* SOCIAL SECTION */}
                       <div className="mt-2">
                         <div className="d-flex align-items-center justify-content-center flex-wrap">
                           <div className="text-center me-2 flex-fill">
@@ -198,7 +198,7 @@ const Login = () => {
                               <ImageWithBasePath
                                 className="img-fluid m-1"
                                 src="assets/img/icons/google-logo.svg"
-                                alt="Facebook"
+                                alt="Google"
                               />
                             </Link>
                           </div>

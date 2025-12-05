@@ -6,9 +6,15 @@ from .models import Employee, Department, Designation, Policy
 #                     DEPARTMENT SERIALIZER
 # ==============================================================
 class DepartmentSerializer(serializers.ModelSerializer):
+    employee_count = serializers.SerializerMethodField()   # ⭐ ADDED
+
     class Meta:
         model = Department
-        fields = ("id", "name", "description")
+        fields = ("id", "name", "description", "employee_count")  # ⭐ UPDATED
+
+    # ⭐ RETURNS NUMBER OF EMPLOYEES IN THIS DEPARTMENT
+    def get_employee_count(self, obj):
+        return obj.employees.count()
 
 
 # ==============================================================
