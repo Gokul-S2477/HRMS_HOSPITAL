@@ -35,6 +35,7 @@ class Designation(models.Model):
 #            EMPLOYEE
 # ======================================
 class Employee(models.Model):
+
     EMPLOYEE_ROLES = [
         ('Doctor', 'Doctor'),
         ('Nurse', 'Nurse'),
@@ -60,75 +61,109 @@ class Employee(models.Model):
         ('Widowed', 'Widowed'),
     ]
 
-    # Basic Details
-    emp_code = models.CharField(max_length=50, unique=True, verbose_name="Employee ID", db_index=True)
+    # -----------------------------------
+    # BASIC INFORMATION
+    # -----------------------------------
+    emp_code = models.CharField(max_length=50, unique=True, db_index=True)
     first_name = models.CharField(max_length=120)
     middle_name = models.CharField(max_length=120, blank=True, null=True)
     last_name = models.CharField(max_length=120, blank=True)
     gender = models.CharField(max_length=10, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
 
-    # Contact
+    # NEW FIELDS (PERSONAL DETAILS)
+    father_name = models.CharField(max_length=120, blank=True, null=True)
+    mother_name = models.CharField(max_length=120, blank=True, null=True)
+    spouse_name = models.CharField(max_length=120, blank=True, null=True)
+    religion = models.CharField(max_length=120, blank=True, null=True)
+    nationality = models.CharField(max_length=120, blank=True, null=True)
+
+    # -----------------------------------
+    # CONTACT INFORMATION
+    # -----------------------------------
     email = models.EmailField(unique=True, db_index=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     alternate_phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
 
-    # Emergency Contact
+    # EMERGENCY CONTACT
     emergency_contact_name = models.CharField(max_length=120, blank=True, null=True)
     emergency_contact_number = models.CharField(max_length=15, blank=True, null=True)
 
-    # Work Info
+    # -----------------------------------
+    # IDENTITY DOCUMENTS (NEW)
+    # -----------------------------------
+    aadhar_number = models.CharField(max_length=20, blank=True, null=True)
+    pan_number = models.CharField(max_length=20, blank=True, null=True)
+    passport_number = models.CharField(max_length=20, blank=True, null=True)
+    driving_license_number = models.CharField(max_length=30, blank=True, null=True)
+
+    # -----------------------------------
+    # JOB INFORMATION
+    # -----------------------------------
     role = models.CharField(max_length=60, choices=EMPLOYEE_ROLES, default='Other')
 
     department = models.ForeignKey(
-        Department,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="employees",
-        db_index=True
+        Department, on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="employees", db_index=True
     )
 
     designation = models.ForeignKey(
-        Designation,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="employees",
-        db_index=True
+        Designation, on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="employees", db_index=True
     )
 
     joining_date = models.DateField(null=True, blank=True)
     employment_type = models.CharField(max_length=30, choices=EMPLOYMENT_TYPES, default='Full-Time')
 
     reporting_to = models.ForeignKey(
-        'self',
-        null=True,
-        blank=True,
+        'self', null=True, blank=True,
         on_delete=models.SET_NULL,
         related_name="subordinates"
     )
 
-    # Extra HR Info
+    # -----------------------------------
+    # HR EXTRA INFORMATION (NEW)
+    # -----------------------------------
     national_id = models.CharField(max_length=120, blank=True, null=True)
     blood_group = models.CharField(max_length=10, blank=True, null=True)
     marital_status = models.CharField(max_length=15, choices=MARITAL_STATUS, default='Single')
 
-    # Work Shift
     work_shift = models.CharField(max_length=120, blank=True, null=True)
     work_location = models.CharField(max_length=120, blank=True, null=True)
 
-    # Photo
-    photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)
+    previous_company = models.CharField(max_length=200, blank=True, null=True)
+    previous_experience_years = models.DecimalField(max_digits=4, decimal_places=1, blank=True, null=True)
+    previous_salary = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    highest_qualification = models.CharField(max_length=200, blank=True, null=True)
 
-    # Payroll
+    probation_period = models.CharField(max_length=50, blank=True, null=True)
+    confirmation_date = models.DateField(null=True, blank=True)
+    notice_period = models.CharField(max_length=50, blank=True, null=True)
+
+    resignation_date = models.DateField(null=True, blank=True)
+    resignation_reason = models.TextField(blank=True, null=True)
+
+    # -----------------------------------
+    # BANK INFORMATION (NEW)
+    # -----------------------------------
+    bank_name = models.CharField(max_length=100, blank=True, null=True)
+    bank_account_number = models.CharField(max_length=40, blank=True, null=True)
+    bank_ifsc = models.CharField(max_length=20, blank=True, null=True)
+    bank_branch = models.CharField(max_length=120, blank=True, null=True)
+
+    # -----------------------------------
+    # PHOTO + PAYROLL
+    # -----------------------------------
+    photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)
     salary = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
 
-    # Status
+    # -----------------------------------
+    # STATUS & AUDIT
+    # -----------------------------------
     is_active = models.BooleanField(default=True)
-
-    # Audit
     created_by = models.CharField(max_length=120, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -148,14 +183,10 @@ class Policy(models.Model):
     appraisal_date = models.DateField(null=True, blank=True)
 
     department = models.ForeignKey(
-        Department,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        Department, on_delete=models.SET_NULL,
+        null=True, blank=True,
         related_name="policies"
     )
-
-
 
     description = models.TextField(blank=True, null=True)
     file = models.FileField(upload_to="policies/", null=True, blank=True)

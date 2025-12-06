@@ -1,5 +1,17 @@
+/* eslint-disable no-restricted-globals */
+/*
+  Employee Grid (UPDATED)
+  - Uses your project's central API axios instance (keeps auth headers & baseURL)
+  - Handles both array and paginated { results: [...] } responses
+  - Smart search (name, email, department, designation, emp_code startsWith)
+  - Filters (department, designation, status)
+  - Pagination
+  - Neat SmartHR-like white cards, hover lift, actions placed at bottom
+  - No bulk selection / consistent theme
+*/
+
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import API from "../../../api/axios"; // <-- use project axios instance
 import all_routes from "../../router/all_routes";
 import { useNavigate } from "react-router-dom";
 
@@ -19,12 +31,8 @@ type Employee = {
   designation?: Desig | null;
   is_active?: boolean;
   photo?: string | null;
+  created_at?: string | null;
 };
-
-const API_BASE = "http://localhost:8000";
-const API_EMP = `${API_BASE}/api/employees/`;
-const API_DEPT = `${API_BASE}/api/departments/`;
-const API_DESIG = `${API_BASE}/api/designations/`;
 
 const EmployeeGrid: React.FC = () => {
   const navigate = useNavigate();
@@ -33,30 +41,25 @@ const EmployeeGrid: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Dept[]>([]);
   const [designations, setDesignations] = useState<Desig[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // UI state
-  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const [filterDept, setFilterDept] = useState<string>(""); // id as string
+  const [filterDept, setFilterDept] = useState<string>("");
   const [filterDesig, setFilterDesig] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
   const [sortBy, setSortBy] = useState<
     "recent" | "name_asc" | "name_desc" | "joining_asc" | "joining_desc"
   >("recent");
 
-  // selection & pagination
-  const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
-  const [selectAllVisible, setSelectAllVisible] = useState(false);
+  // pagination
   const [page, setPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(12);
 
-  // hover state for polished card hover
-  const [hovered, setHovered] = useState<number | null>(null);
-
-  // load meta & employees
+  // ---------------- load meta & employees ----------------
   const loadMeta = async () => {
     try {
-      const [dRes, desRes] = await Promise.all([axios.get(API_DEPT), axios.get(API_DESIG)]);
+      const [dRes, desRes] = await Promise.all([API.get("/departments/"), API.get("/designations/")]);
       setDepartments(Array.isArray(dRes.data) ? dRes.data : dRes.data.results || []);
       setDesignations(Array.isArray(desRes.data) ? desRes.data : desRes.data.results || []);
     } catch (err) {
@@ -67,11 +70,13 @@ const EmployeeGrid: React.FC = () => {
   const loadEmployees = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(API_EMP);
-      const data = Array.isArray(res.data) ? res.data : res.data.results || [];
+      const res = await API.get("/employees/");
+      // support both array and paginated results
+      const data = Array.isArray(res.data) ? res.data : res.data?.results ? res.data.results : [];
       setEmployees(data);
     } catch (err) {
       console.error("employees load error", err);
+      setEmployees([]);
     } finally {
       setLoading(false);
     }
@@ -83,23 +88,21 @@ const EmployeeGrid: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // helpers
+  // ---------------- helpers ----------------
   const calculateAge = (dob?: string | null) => {
-    const d = dob || "";
-    if (!d) return "-";
-    const birth = new Date(d);
-    if (isNaN(birth.getTime())) return "-";
-    const diff = Date.now() - birth.getTime();
-    return Math.abs(new Date(diff).getUTCFullYear() - 1970);
+    if (!dob) return "-";
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return "-";
+    return Math.abs(new Date(Date.now() - d.getTime()).getUTCFullYear() - 1970);
   };
 
+  // use project's baseAPI for photos if relative path is returned (API base is set in API instance)
   const avatarSrc = (e: Employee) =>
-    e.photo ? (e.photo.startsWith("http") ? e.photo : `${API_BASE}${e.photo}`) : "/assets/images/avatar.png";
+    e.photo ? (e.photo.startsWith("http") ? e.photo : `${(API.defaults.baseURL || "").replace(/\/$/, "")}${e.photo}`) : "/assets/images/avatar.png";
 
-  // smart filter + search + sort
+  // ---------------- smart filter + search + sort ----------------
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-
     let list = [...employees];
 
     if (q) {
@@ -115,23 +118,17 @@ const EmployeeGrid: React.FC = () => {
           email.includes(q) ||
           dept.includes(q) ||
           desig.includes(q) ||
-          empcode.startsWith(q) // emp_code -> startsWith behavior
+          empcode.startsWith(q) // emp_code -> startsWith behaviour
         );
       });
     }
 
-    if (filterDept) {
-      list = list.filter((e) => String(e.department?.id ?? "") === filterDept);
-    }
-
-    if (filterDesig) {
-      list = list.filter((e) => String(e.designation?.id ?? "") === filterDesig);
-    }
+    if (filterDept) list = list.filter((e) => String(e.department?.id ?? "") === filterDept);
+    if (filterDesig) list = list.filter((e) => String(e.designation?.id ?? "") === filterDesig);
 
     if (filterStatus === "active") list = list.filter((e) => e.is_active);
     if (filterStatus === "inactive") list = list.filter((e) => !e.is_active);
 
-    // sorting
     if (sortBy === "name_asc") {
       list.sort((a, b) => (a.first_name ?? "").localeCompare(b.first_name ?? ""));
     } else if (sortBy === "name_desc") {
@@ -141,8 +138,12 @@ const EmployeeGrid: React.FC = () => {
     } else if (sortBy === "joining_desc") {
       list.sort((a, b) => new Date(b.joining_date ?? "").getTime() - new Date(a.joining_date ?? "").getTime());
     } else {
-      // recent: fallback - sort by id desc (if created_at not present)
-      list.sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
+      // recent - fallback by created_at or joining_date
+      list.sort((a, b) => {
+        const ta = new Date(a.created_at ?? a.joining_date ?? "").getTime() || 0;
+        const tb = new Date(b.created_at ?? b.joining_date ?? "").getTime() || 0;
+        return tb - ta;
+      });
     }
 
     return list;
@@ -153,150 +154,53 @@ const EmployeeGrid: React.FC = () => {
   const paged = filtered.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
   useEffect(() => {
-    // whenever page size or filters change, reset to page 1
+    // when filters/paging change reset to page 1
     setPage(1);
   }, [rowsPerPage, search, filterDept, filterDesig, filterStatus, sortBy]);
 
-  // selection handlers
-  const toggleSelect = (id: number) => {
-    setSelectedIds((prev) => {
-      const next = { ...prev };
-      if (next[id]) delete next[id];
-      else next[id] = true;
-      return next;
-    });
-  };
-
-  const toggleSelectAllVisible = (val: boolean) => {
-    setSelectAllVisible(val);
-    if (val) {
-      const next: Record<number, boolean> = {};
-      paged.forEach((p) => (next[p.id] = true));
-      setSelectedIds(next);
-    } else {
-      // remove only visible page ids
-      setSelectedIds((prev) => {
-        const next = { ...prev };
-        paged.forEach((p) => delete next[p.id]);
-        return next;
-      });
-    }
-  };
-
+  // ---------------- delete ----------------
   const deleteEmployee = async (id: number) => {
+    // window.confirm used across project; keep for UX. eslint disabled at top.
     if (!window.confirm("Delete this employee?")) return;
     try {
-      await axios.delete(`${API_EMP}${id}/`);
+      await API.delete(`/employees/${id}/`);
       await loadEmployees();
-      // remove from selection map
-      setSelectedIds((prev) => {
-        const n = { ...prev };
-        delete n[id];
-        return n;
-      });
     } catch (err) {
       console.error("delete error", err);
       alert("Delete failed.");
     }
   };
 
-  const deleteSelected = async () => {
-    const ids = Object.keys(selectedIds).map((k) => Number(k));
-    if (!ids.length) return alert("No employees selected.");
-    if (!window.confirm(`Delete ${ids.length} selected employees? This cannot be undone.`)) return;
-
-    try {
-      for (const id of ids) {
-        await axios.delete(`${API_EMP}${id}/`);
-      }
-      await loadEmployees();
-      setSelectedIds({});
-      setSelectAllVisible(false);
-    } catch (err) {
-      console.error("bulk delete error", err);
-      alert("Bulk delete failed (see console).");
-    }
-  };
-
-  const exportCSV = () => {
-    const rows = filtered.map((e) => ({
-      id: e.id,
-      emp_code: e.emp_code,
-      name: `${e.first_name ?? ""} ${e.last_name ?? ""}`.trim(),
-      email: e.email ?? "",
-      department: e.department?.name ?? "",
-      designation: e.designation?.title ?? "",
-      joining_date: e.joining_date ?? "",
-    }));
-    if (!rows.length) return alert("No data to export");
-
-    const csv = [
-      Object.keys(rows[0]).join(","),
-      ...rows.map((r) =>
-        Object.values(r)
-          .map((v) => `"${String(v ?? "")?.replace(/"/g, '""')}"`)
-          .join(",")
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `employees_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // polished card styles (inline + dynamic for easy portability)
+  // ---------------- card style (keeps SmartHR feel) ----------------
   const cardBase: React.CSSProperties = {
     borderRadius: 12,
-    transition: "transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms cubic-bezier(.2,.9,.2,1)",
-    overflow: "hidden",
-    cursor: "pointer",
-    background: "#1b1b28", // slight darker - consistent with SmartHR dark card
-    border: "1px solid rgba(255,255,255,0.03)",
+    background: "#fff",
+    boxShadow: "0 6px 20px rgba(28,31,39,0.06)",
+    transition: "transform 180ms ease, box-shadow 180ms ease",
+    padding: 18,
+    minHeight: 260,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   };
 
-  const avatarWrapperStyle: React.CSSProperties = {
-    width: 96,
-    height: 96,
-    borderRadius: "50%",
-    overflow: "hidden",
-    display: "inline-block",
-    padding: 3,
-    background: "linear-gradient(135deg,#ff9d3d22,#ff8a00)", // soft ring
-  };
-
-  const nameStyle: React.CSSProperties = {
-    marginTop: 12,
-    marginBottom: 6,
-    fontSize: 16,
-    fontWeight: 600,
-    color: "#ffffff",
-    letterSpacing: 0.2,
-  };
-
-  const badgeStyle: React.CSSProperties = {
-    display: "inline-block",
-    background: "#ffd7f0",
-    color: "#000",
-    fontSize: 12,
-    padding: "6px 10px",
-    borderRadius: 8,
-  };
+  const hoverStyle = {
+    transform: "translateY(-6px)",
+    boxShadow: "0 14px 40px rgba(28,31,39,0.12)",
+  } as React.CSSProperties;
 
   return (
     <div className="page-wrapper">
       <div className="content container-fluid">
-        {/* Header & Actions */}
+
+        {/* Header & Controls */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h2 className="page-title">Employee</h2>
-            <small className="text-muted">Employee Grid — polished SmartHR look</small>
+            <small className="text-muted">Grid view — smart search & filters</small>
           </div>
 
-          <div className="d-flex align-items-center gap-2 flex-wrap">
+          <div className="d-flex align-items-center gap-2">
             <input
               className="form-control"
               placeholder="Smart search: name / email / dept / designation / emp code (starts)"
@@ -305,27 +209,23 @@ const EmployeeGrid: React.FC = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
 
-            <select className="form-select" value={filterDesig} onChange={(e) => setFilterDesig(e.target.value)} style={{ width: 180 }}>
+            <select className="form-select" style={{ width: 160 }} value={filterDesig} onChange={(e) => setFilterDesig(e.target.value)}>
               <option value="">All Designations</option>
-              {designations.map((d) => (
-                <option key={d.id} value={String(d.id)}>{d.title}</option>
-              ))}
+              {designations.map((d) => <option key={d.id} value={String(d.id)}>{d.title}</option>)}
             </select>
 
-            <select className="form-select" value={filterDept} onChange={(e) => setFilterDept(e.target.value)} style={{ width: 180 }}>
+            <select className="form-select" style={{ width: 160 }} value={filterDept} onChange={(e) => setFilterDept(e.target.value)}>
               <option value="">All Departments</option>
-              {departments.map((d) => (
-                <option key={d.id} value={String(d.id)}>{d.name}</option>
-              ))}
+              {departments.map((d) => <option key={d.id} value={String(d.id)}>{d.name}</option>)}
             </select>
 
-            <select className="form-select" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)} style={{ width: 140 }}>
+            <select className="form-select" style={{ width: 140 }} value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)}>
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
 
-            <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} style={{ width: 160 }}>
+            <select className="form-select" style={{ width: 160 }} value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
               <option value="recent">Sort: Recent</option>
               <option value="name_asc">Name: A → Z</option>
               <option value="name_desc">Name: Z → A</option>
@@ -333,157 +233,108 @@ const EmployeeGrid: React.FC = () => {
               <option value="joining_asc">Joining: Old → New</option>
             </select>
 
-            <select className="form-select" value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} style={{ width: 120 }}>
+            <select className="form-select" style={{ width: 120 }} value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))}>
               <option value={8}>8 / page</option>
               <option value={12}>12 / page</option>
               <option value={20}>20 / page</option>
-              <option value={40}>40 / page</option>
             </select>
 
-            <button className="btn btn-outline-light" onClick={exportCSV}>Export</button>
             <button className="btn btn-primary" onClick={() => navigate(all_routes.employeeAdd)}>Add Employee</button>
-          </div>
-        </div>
-
-        {/* Bulk actions */}
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <label className="form-check form-switch d-flex align-items-center gap-2">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={selectAllVisible}
-                onChange={(e) => toggleSelectAllVisible(e.target.checked)}
-              />
-              <span className="form-check-label">Select page</span>
-            </label>
-
-            <button className="btn btn-danger btn-sm ms-2" onClick={deleteSelected} disabled={Object.keys(selectedIds).length === 0}>
-              Delete Selected ({Object.keys(selectedIds).length})
-            </button>
-          </div>
-
-          <div>
-            <small className="text-muted">Showing {filtered.length} results — Page {page} / {pageCount}</small>
           </div>
         </div>
 
         {/* Grid */}
         <div className="row">
-          {paged.map((e) => {
-            const selected = !!selectedIds[e.id];
-            const isHovered = hovered === e.id;
-
-            return (
-              <div key={e.id} className="col-xl-3 col-lg-4 col-md-6 mb-4">
-                <div
-                  className="card p-3"
-                  style={{
-                    ...cardBase,
-                    transform: isHovered ? "translateY(-6px) scale(1.02)" : selected ? "scale(0.995)" : undefined,
-                    boxShadow: isHovered
-                      ? "0 18px 40px rgba(0,0,0,0.55)"
-                      : "0 6px 18px rgba(0,0,0,0.35)",
-                  }}
-                  onMouseEnter={() => setHovered(e.id)}
-                  onMouseLeave={() => setHovered(null)}
-                >
-                  {/* top row */}
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div className="d-flex align-items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={selected}
-                        onChange={(ev) => {
-                          ev.stopPropagation();
-                          toggleSelect(e.id);
-                        }}
-                      />
-                    </div>
-
-                    <div className="dropdown">
-                      <button className="btn btn-sm btn-link text-light p-0" onClick={(ev) => ev.stopPropagation()} title="Actions">
-                        <i className="ti ti-dots-vertical" />
-                      </button>
-                      <div className="dropdown-menu dropdown-menu-end">
-                        <button
-                          className="dropdown-item"
-                          onClick={() => navigate(`${all_routes.employeedetails}?id=${e.id}`)}
-                        >
-                          View
-                        </button>
-
-                        <button className="dropdown-item" onClick={() => navigate(`${all_routes.employeeAdd}?id=${e.id}`)}>
-                          Edit
-                        </button>
-
-                        <button className="dropdown-item text-danger" onClick={() => deleteEmployee(e.id)}>
-                          Delete
-                        </button>
-                      </div>
-                    </div>
+          {paged.map((e) => (
+            <div key={e.id} className="col-xl-3 col-lg-4 col-md-6 mb-4">
+              <div
+                className="card"
+                style={cardBase}
+                onMouseEnter={(ev) => Object.assign(ev.currentTarget.style, hoverStyle)}
+                onMouseLeave={(ev) => Object.assign(ev.currentTarget.style, cardBase)}
+              >
+                <div onClick={() => navigate(`${all_routes.employeeDetails}?id=${e.id}`)} style={{ cursor: "pointer" }}>
+                  <div className="text-center">
+                    <img
+                      src={avatarSrc(e)}
+                      alt={e.first_name}
+                      style={{ width: 96, height: 96, borderRadius: "50%", objectFit: "cover", border: "3px solid #ff8a00" }}
+                    />
                   </div>
 
-                  {/* clickable area */}
-                  <div
-                    style={{ cursor: "pointer", paddingTop: 6 }}
-                    onClick={() => navigate(`${all_routes.employeedetails}?id=${e.id}`)}
-                    className="text-center"
-                  >
-                    <div style={avatarWrapperStyle}>
-                      <img
-                        src={avatarSrc(e)}
-                        alt={e.first_name}
-                        style={{
-                          width: 86,
-                          height: 86,
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          display: "block",
-                        }}
-                      />
-                    </div>
+                  <h5 className="mt-3 mb-1 text-center" style={{ color: "#111" }}>
+                    {e.first_name} {e.last_name ?? ""}
+                  </h5>
 
-                    <div style={nameStyle}>
-                      {e.first_name} {e.last_name ?? ""}
-                    </div>
+                  <div className="text-center">
+                    <span className="badge bg-light text-dark px-3 py-2">
+                      {e.designation?.title ?? "No Designation"}
+                    </span>
+                  </div>
 
-                    <div style={{ marginBottom: 8 }}>
-                      <span style={badgeStyle}>
-                        {e.designation?.title ?? "No Designation"}
-                      </span>
-                    </div>
+                  <p className="text-muted text-center my-2">{e.department?.name ?? "No Department"}</p>
 
-                    <p className="text-muted mt-2 mb-1" style={{ fontSize: 13 }}>
-                      {e.department?.name ?? "No Department"}
-                    </p>
+                  <div className="d-flex justify-content-between px-2">
+                    <small className="text-muted"><strong>ID:</strong> {e.emp_code ?? "-"}</small>
+                    <small className="text-muted"><strong>Age:</strong> {calculateAge(e.date_of_birth)}</small>
+                  </div>
 
-                    <p className="text-light mb-0" style={{ fontSize: 13 }}>
-                      <strong>ID:</strong> {e.emp_code ?? "-"}
-                    </p>
-
-                    <p className="text-light mb-1" style={{ fontSize: 13 }}>
-                      <strong>Age:</strong> {calculateAge(e.date_of_birth)}
-                    </p>
-
-                    <div className="mt-2 d-flex justify-content-center align-items-center gap-2">
-                      <span
-                        style={{
-                          width: 12,
-                          height: 12,
-                          display: "inline-block",
-                          borderRadius: "50%",
-                          background: e.is_active ? "#4cd964" : "#ff3b30",
-                          boxShadow: isHovered ? (e.is_active ? "0 0 8px #4cd96455" : "0 0 8px #ff3b3055") : undefined,
-                        }}
-                      />
-                      <small className="text-light">{e.is_active ? "Active" : "Inactive"}</small>
-                    </div>
+                  <div className="text-center mt-2">
+                    <small style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: "50%", background: e.is_active ? "#4cd964" : "#ff3b30", display: "inline-block" }} />
+                      {e.is_active ? "Active" : "Inactive"}
+                    </small>
                   </div>
                 </div>
+
+                {/* actions - separate from clickable area */}
+                <div className="d-flex justify-content-center gap-2 mt-3">
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      navigate(`${all_routes.employeeDetails}?id=${e.id}`);
+                    }}
+                  >
+                    View
+                  </button>
+
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      navigate(`${all_routes.employeeAdd}?id=${e.id}`);
+                    }}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      deleteEmployee(e.id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
+
+          {paged.length === 0 && !loading && (
+            <div className="col-12 text-center py-5">
+              <h5>No employees found</h5>
+              <p className="text-muted">Try clearing filters or adding employees.</p>
+            </div>
+          )}
+
+          {loading && (
+            <div className="col-12 text-center py-5">
+              <h5>Loading employees...</h5>
+            </div>
+          )}
         </div>
 
         {/* pagination controls */}
