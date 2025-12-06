@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../../api/axios";
+import all_routes from "../../router/all_routes"; // ⭐ ADDED
 
 type Dept = { id: number; name: string };
 type Desig = { id: number; title: string };
@@ -41,20 +42,6 @@ const API_EMP = `${API_BASE}/api/employees/`;
 const API_DEPT = `${API_BASE}/api/departments/`;
 const API_DESIG = `${API_BASE}/api/designations/`;
 
-const MODULES = [
-  "Holidays",
-  "Leaves",
-  "Clients",
-  "Projects",
-  "Tasks",
-  "Chats",
-  "Assets",
-  "TimingSheets",
-  "Payroll",
-  "Attendance",
-  "Reports",
-];
-
 const EmployeeList: React.FC = () => {
   const navigate = useNavigate();
 
@@ -74,10 +61,7 @@ const EmployeeList: React.FC = () => {
 
   const fetchMeta = async () => {
     try {
-      const [dRes, desRes] = await Promise.all([
-        API.get(API_DEPT),
-        API.get(API_DESIG),
-      ]);
+      const [dRes, desRes] = await Promise.all([API.get(API_DEPT), API.get(API_DESIG)]);
       setDepartments(Array.isArray(dRes.data) ? dRes.data : []);
       setDesignations(Array.isArray(desRes.data) ? desRes.data : []);
     } catch (err) {
@@ -89,10 +73,11 @@ const EmployeeList: React.FC = () => {
     setLoading(true);
     try {
       const res = await API.get(API_EMP);
-
-      // ⭐ FIX: always return ARRAY
-      const data = Array.isArray(res.data) ? res.data :
-                   res.data?.results ? res.data.results : [];
+      const data = Array.isArray(res.data)
+        ? res.data
+        : res.data?.results
+        ? res.data.results
+        : [];
 
       setEmployees(data);
     } catch (err) {
@@ -114,22 +99,20 @@ const EmployeeList: React.FC = () => {
 
     const newHires = employees.filter((e) => {
       if (!e.joining_date) return false;
-      const jd = new Date(e.joining_date);
-      const now = new Date();
-      const diffDays = Math.floor((now.getTime() - jd.getTime()) / (1000 * 60 * 60 * 24));
-      return diffDays <= 30;
+      const diff = (new Date().getTime() - new Date(e.joining_date).getTime()) / (1000 * 60 * 60 * 24);
+      return diff <= 30;
     }).length;
 
     return { total, active, inactive, newHires };
   }, [employees]);
 
   const filtered = useMemo(() => {
-    let list = employees.slice();
+    let list = [...employees];
 
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter((e) => {
-        const name = `${e.first_name ?? ""} ${e.middle_name ?? ""} ${e.last_name ?? ""}`.toLowerCase();
+        const name = `${e.first_name} ${e.last_name ?? ""}`.toLowerCase();
         return (
           name.includes(q) ||
           (e.email ?? "").toLowerCase().includes(q) ||
@@ -169,8 +152,16 @@ const EmployeeList: React.FC = () => {
         : `${API_BASE}${e.photo}`
       : "/assets/images/avatar.png";
 
-  const smallName = (e: Employee) =>
-    `${e.first_name ?? ""} ${e.last_name ?? ""}`;
+  const smallName = (e: Employee) => `${e.first_name} ${e.last_name ?? ""}`;
+
+  // ⭐ UPDATED PATHS ONLY
+  const goToAddPage = () => navigate(all_routes.employeeAdd);
+
+  const goToEditPage = (id: number) =>
+    navigate(`${all_routes.employeeAdd}?id=${id}`);
+
+  const goToDetailsPage = (id: number) =>
+    navigate(`${all_routes.employeeDetails}?id=${id}`); // FIXED HERE ✔
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this employee?")) return;
@@ -182,9 +173,6 @@ const EmployeeList: React.FC = () => {
       alert("Delete failed (see console).");
     }
   };
-
-  const goToAddPage = () => navigate("/employee-add");
-  const goToEditPage = (id: number) => navigate(`/employee-add?id=${id}`);
 
   const exportCSV = () => {
     const rows = filtered.map((e) => ({
@@ -223,7 +211,9 @@ const EmployeeList: React.FC = () => {
         <div className="page-header d-flex justify-content-between align-items-center mb-3">
           <div>
             <h2 className="page-title">Employees</h2>
-            <small className="text-muted">Manage employees, roles and permissions</small>
+            <small className="text-muted">
+              Manage employees, roles and permissions
+            </small>
           </div>
 
           <div className="d-flex align-items-center">
@@ -231,14 +221,12 @@ const EmployeeList: React.FC = () => {
               <button
                 className={`btn btn-sm btn-outline-light ${viewMode === "list" ? "active" : ""}`}
                 onClick={() => setViewMode("list")}
-                title="List view"
               >
                 <i className="ti ti-list" />
               </button>
               <button
                 className={`btn btn-sm btn-outline-light ms-2 ${viewMode === "grid" ? "active" : ""}`}
                 onClick={() => setViewMode("grid")}
-                title="Grid view"
               >
                 <i className="ti ti-layout-grid" />
               </button>
@@ -250,11 +238,9 @@ const EmployeeList: React.FC = () => {
               </button>
             </div>
 
-            <div>
-              <button className="btn btn-primary" onClick={goToAddPage}>
-                <i className="ti ti-plus" /> Add Employee
-              </button>
-            </div>
+            <button className="btn btn-primary" onClick={goToAddPage}>
+              <i className="ti ti-plus" /> Add Employee
+            </button>
           </div>
         </div>
 
@@ -366,7 +352,7 @@ const EmployeeList: React.FC = () => {
           </div>
         </div>
 
-        {/* List / Grid */}
+        {/* List/Grid */}
         {viewMode === "list" ? (
           <div className="card">
             <div className="card-body">
@@ -431,9 +417,7 @@ const EmployeeList: React.FC = () => {
                         <td>
                           <button
                             className="btn btn-sm btn-outline-light me-1"
-                            onClick={() =>
-                              navigate(`/employee-details?id=${e.id}`)
-                            }
+                            onClick={() => goToDetailsPage(e.id)}
                           >
                             View
                           </button>

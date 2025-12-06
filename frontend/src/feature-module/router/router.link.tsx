@@ -31,16 +31,16 @@ import UnderMaintenance from "../pages/underMaintenance";
 import Error404 from "../pages/error/error-404";
 import Error500 from "../pages/error/error-500";
 
-// PROTECTED SCREENS
+// PROTECTED ROUTE HANDLER
 import ProtectedRoute from "../../core/auth/ProtectedRoute";
 
-// Dashboards
+// MAIN DASHBOARDS
 import AdminDashboard from "../mainMenu/adminDashboard";
 import EmployeeDashboard from "../mainMenu/employeeDashboard/employee-dashboard";
 import LeadsDashboard from "../mainMenu/leadsDashboard";
 import DealsDashboard from "../mainMenu/dealsDashboard";
 
-// Employee Management
+// EMPLOYEE MODULE
 import EmployeeList from "../mainMenu/employeeDashboard/employee-list";
 import EmployeeGrid from "../mainMenu/employeeDashboard/employee-grid";
 import EmployeeDetails from "../mainMenu/employeeDashboard/employee-details";
@@ -57,6 +57,9 @@ import EmployeePayrollForm from "../accounts/employee-payroll/EmployeePayrollFor
 import PayslipList from "../accounts/payslips/PayslipList";
 import PayslipView from "../accounts/payslips/PayslipView";
 
+// ------------------------------
+// PUBLIC ROUTES
+// ------------------------------
 export const publicRoutes = [
   { path: "/", element: <Navigate to={routes.login} />, route: Route },
 
@@ -91,36 +94,39 @@ export const publicRoutes = [
   { path: routes.error500, element: <Error500 />, route: Route },
 ];
 
+// ------------------------------
+// PROTECTED ROUTES
+// ------------------------------
 export const protectedRoutes = [
-  // Dashboards
+  // MAIN DASHBOARDS
   { path: routes.adminDashboard, element: <AdminDashboard /> },
   { path: routes.employeeDashboard, element: <EmployeeDashboard /> },
   { path: routes.leadsDashboard, element: <LeadsDashboard /> },
   { path: routes.dealsDashboard, element: <DealsDashboard /> },
 
-  // EMPLOYEE MODULE (⭐ FIXED)
-  { path: routes.employeeList, element: <EmployeeList /> },  // /employee-list
-  // ❌ REMOVED OLD ROUTE → routes.employees = "/employees"
+  // EMPLOYEE MODULE — USING ORIGINAL ROUTE NAMES
+  { path: routes.employeeList, element: <EmployeeList /> },
   { path: routes.employeeAdd, element: <EmployeeAdd /> },
   { path: routes.employeeGrid, element: <EmployeeGrid /> },
   { path: routes.employeedetails, element: <EmployeeDetails /> },
+
+  // EMPLOYEE SETTINGS
   { path: routes.departments, element: <Departments /> },
   { path: routes.designations, element: <Designations /> },
   { path: routes.policy, element: <Policies /> },
 
-  // Payroll
+  // PAYROLL
   { path: routes.salaryComponents, element: <SalaryComponentsList /> },
   { path: routes.salaryComponentsCreate, element: <SalaryComponentsForm /> },
-  { path: `${routes.salaryComponentsEdit}`, element: <SalaryComponentsForm /> },
+  { path: routes.salaryComponentsEdit, element: <SalaryComponentsForm /> },
 
   { path: routes.employeePayroll, element: <EmployeePayrollList /> },
   { path: routes.employeePayrollCreate, element: <EmployeePayrollForm /> },
-  { path: `${routes.employeePayrollEdit}`, element: <EmployeePayrollForm /> },
+  { path: routes.employeePayrollEdit, element: <EmployeePayrollForm /> },
 
   { path: routes.payslips, element: <PayslipList /> },
-  { path: `${routes.payslipsView}`, element: <PayslipView /> },
+  { path: routes.payslipsView, element: <PayslipView /> },
 ];
-
 
 
 

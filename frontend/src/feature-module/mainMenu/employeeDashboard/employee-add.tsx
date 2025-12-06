@@ -1,11 +1,18 @@
 // frontend/src/feature-module/mainMenu/employeeDashboard/employee-add.tsx
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../../../api/axios";
+import all_routes from "../../router/all_routes"; // ⭐ ADDED
 
 type Dept = { id: number; name: string };
 type Desig = { id: number; title: string };
-type EmpSmall = { id: number; first_name: string; last_name?: string; emp_code?: string };
+type EmpSmall = {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  emp_code?: string;
+};
 
 type PermissionSet = {
   read: boolean;
@@ -58,7 +65,6 @@ const EmployeeAdd: React.FC = () => {
   const [permissions, setPermissions] = useState<Record<string, PermissionSet>>({
     ...defaultPermissions,
   });
-
   const [permissionsSelectAll, setPermissionsSelectAll] = useState(false);
 
   const [formData, setFormData] = useState<any>({
@@ -232,7 +238,7 @@ const EmployeeAdd: React.FC = () => {
   };
 
   // ---------------------------------------------------
-  // 🔥 FULLY FIXED SUBMIT — With stable redirect
+  // ⭐ FINAL FIXED SUBMIT HANDLER — Correct navigation
   // ---------------------------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -264,15 +270,8 @@ const EmployeeAdd: React.FC = () => {
         alert("Employee created!");
       }
 
-      // ⭐⭐⭐ Correct Redirect (template safe)
-      const routes = [
-        "/employees",
-        "/employee-list",
-        "/employees-list",
-        "/app/employees/employee-list",
-      ];
-
-      navigate(routes[0], { replace: true });
+      // ⭐ Correct Redirect (ONLY correct one)
+      navigate(all_routes.employeeList, { replace: true });
 
     } catch (err) {
       console.error("Submit Error:", err);
@@ -299,7 +298,7 @@ const EmployeeAdd: React.FC = () => {
           <div>
             <button
               className="btn btn-secondary me-2"
-              onClick={() => navigate("/employee-list")}
+              onClick={() => navigate(all_routes.employeeList)} // ⭐ FIXED
             >
               Back
             </button>
@@ -310,6 +309,7 @@ const EmployeeAdd: React.FC = () => {
           </div>
         </div>
 
+        {/* ------- MAIN FORM -------- */}
         <div className="card p-3">
           <form id="empForm" onSubmit={handleSubmit}>
             <ul className="nav nav-tabs mb-3">
@@ -338,13 +338,17 @@ const EmployeeAdd: React.FC = () => {
 
             <div className="tab-content">
 
-              {/* BASIC */}
+              {/* BASIC TAB */}
               <div className="tab-pane fade show active" id="basic">
                 <div className="row g-3">
 
                   <div className="col-md-3">
                     <label className="form-label">Profile Photo</label>
-                    <input type="file" className="form-control" onChange={handlePhotoChange} />
+                    <input
+                      type="file"
+                      className="form-control"
+                      onChange={handlePhotoChange}
+                    />
                   </div>
 
                   <div className="col-md-3">
@@ -365,7 +369,10 @@ const EmployeeAdd: React.FC = () => {
                       className="form-control"
                       value={formData.first_name}
                       onChange={(e) =>
-                        setFormData({ ...formData, first_name: e.target.value })
+                        setFormData({
+                          ...formData,
+                          first_name: e.target.value,
+                        })
                       }
                       required
                     />
@@ -377,7 +384,10 @@ const EmployeeAdd: React.FC = () => {
                       className="form-control"
                       value={formData.last_name}
                       onChange={(e) =>
-                        setFormData({ ...formData, last_name: e.target.value })
+                        setFormData({
+                          ...formData,
+                          last_name: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -390,7 +400,10 @@ const EmployeeAdd: React.FC = () => {
                       className="form-control"
                       value={formData.email}
                       onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
+                        setFormData({
+                          ...formData,
+                          email: e.target.value,
+                        })
                       }
                       required
                     />
@@ -402,7 +415,10 @@ const EmployeeAdd: React.FC = () => {
                       className="form-control"
                       value={formData.phone}
                       onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
+                        setFormData({
+                          ...formData,
+                          phone: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -428,7 +444,10 @@ const EmployeeAdd: React.FC = () => {
                       className="form-select"
                       value={formData.gender}
                       onChange={(e) =>
-                        setFormData({ ...formData, gender: e.target.value })
+                        setFormData({
+                          ...formData,
+                          gender: e.target.value,
+                        })
                       }
                     >
                       <option value="">Select</option>
@@ -505,12 +524,15 @@ const EmployeeAdd: React.FC = () => {
                       className="form-control"
                       value={formData.role}
                       onChange={(e) =>
-                        setFormData({ ...formData, role: e.target.value })
+                        setFormData({
+                          ...formData,
+                          role: e.target.value,
+                        })
                       }
                     />
                   </div>
 
-                  {/* Reporting To */}
+                  {/* Reporting to */}
                   <div className="col-md-3">
                     <label className="form-label">Reporting To</label>
                     <select
@@ -550,7 +572,7 @@ const EmployeeAdd: React.FC = () => {
                     />
                   </div>
 
-                  {/* Employment */}
+                  {/* Employment Type */}
                   <div className="col-md-3">
                     <label className="form-label">Employment Type</label>
                     <select
@@ -577,7 +599,10 @@ const EmployeeAdd: React.FC = () => {
                       className="form-control"
                       value={formData.salary}
                       onChange={(e) =>
-                        setFormData({ ...formData, salary: e.target.value })
+                        setFormData({
+                          ...formData,
+                          salary: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -670,12 +695,15 @@ const EmployeeAdd: React.FC = () => {
                       rows={3}
                       value={formData.address}
                       onChange={(e) =>
-                        setFormData({ ...formData, address: e.target.value })
+                        setFormData({
+                          ...formData,
+                          address: e.target.value,
+                        })
                       }
                     />
                   </div>
 
-                  {/* Emergency */}
+                  {/* Emergency Contact */}
                   <div className="col-md-4">
                     <label className="form-label">Emergency Contact Name</label>
                     <input
@@ -742,7 +770,14 @@ const EmployeeAdd: React.FC = () => {
                           <td>{m}</td>
 
                           {(
-                            ["read", "write", "create", "delete", "import", "export"] as (keyof PermissionSet)[]
+                            [
+                              "read",
+                              "write",
+                              "create",
+                              "delete",
+                              "import",
+                              "export",
+                            ] as (keyof PermissionSet)[]
                           ).map((perm) => (
                             <td key={perm}>
                               <input
