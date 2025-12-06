@@ -1,4 +1,5 @@
 // src/feature-module/router/all_routes.tsx
+
 export const all_routes = {
   // ----- Dashboard -----
   adminDashboard: "/index",
@@ -75,8 +76,6 @@ export const all_routes = {
   resetPassword: "/reset-password",
   resetPassword2: "/reset-password-2",
   resetPassword3: "/reset-password-3",
-
-  // reset password success pages (required by old screens)
   resetPasswordSuccess: "/success",
   resetPasswordSuccess2: "/success-2",
   resetPasswordSuccess3: "/success-3",
@@ -124,8 +123,15 @@ export const all_routes = {
   apexChart: "/ui-apexchart",
   primeChart: "/ui-prime-chart",
   chartJs: "/ui-chart-js",
+  // Website Settings (REQUIRED BY TEMPLATE - DO NOT REMOVE)
+  language: "/website-settings/language",
+  addLanguage: "/website-settings/add-language",
+  languageWeb: "/website-settings/language-web",
+  localization: "/website-settings/localization",
 
-  
+  companySettings: "/website-settings/company-settings",
+  socialAuthentication: "/website-settings/social-authentication",
+
   // ----- Forms -----
   basicInput: "/forms-basic-input",
   checkboxandRadion: "/form-checkbox-radios",
@@ -194,14 +200,6 @@ export const all_routes = {
   smsTemplate: "/system-settings/sms-template",
   otpSettings: "/system-settings/otp-settings",
   maintenanceMode: "/system-settings/maintenance-mode",
-
-  // Website Settings
-  socialAuthentication: "/website-settings/social-authentication",
-  companySettings: "/website-settings/company-settings",
-  language: "/website-settings/language",
-  addLanguage: "/website-settings/add-language",
-  languageWeb: "/website-settings/language-web",
-  localization: "/website-settings/localization",
 
   // ----- Content -----
   pages: "/content/pages",
@@ -281,11 +279,9 @@ export const all_routes = {
   refferal: "/refferals",
 
   // ----- Finance & Accounts -----
-
   estimate: "/estimates",
   invoices: "/invoices",
   payments: "/payments",
-
   expense: "/accounts/expense",
   expenses: "/expenses",
 
@@ -300,10 +296,9 @@ export const all_routes = {
   employeesalary: "/employee-salary",
   payslip: "/payslip",
 
-  // Payroll → ***NO DUPLICATES HERE***
+  // Payroll
   payslips: "/accounts/payslips",
   payslipsView: "/accounts/payslips/view/:id",
-
   payrollAddition: "/payroll",
   payrollOvertime: "/payroll-overtime",
   payrollDeduction: "/payroll-deduction",
@@ -312,9 +307,20 @@ export const all_routes = {
   viewPayroll: "/payroll/view/:id",
   addSalaryComponent: "/payroll/component/add",
 
-  // ----- HRM -----
-  employeeList: "/employees",
-  employeeGrid: "/employees-grid",
+  // ----- HRM EMPLOYEE ROUTES (UPDATED & FIXED) -----
+  employeeList: "/employee-list",
+  employeeGrid: "/employee-grid",
+  employeeAdd: "/employee-add",
+  employeeDetails: "/employee-details",
+
+  // 🔥 REQUIRED ALIAS (fixes your TypeScript errors)
+  employeedetails: "/employee-details",
+
+  // Backward compatibility
+  employees: "/employees",
+  employeesGridOld: "/employees-grid",
+  employeesDetailsOld: "/employees-details",
+
   departments: "/departments",
   designations: "/designations",
   policy: "/policy",
@@ -330,8 +336,6 @@ export const all_routes = {
   promotion: "/promotion",
   resignation: "/resignation",
   termination: "/termination",
-  employeeAdd: "/employee-add",
-  employeedetails: "/employee-details",
 
   // ----- Admin -----
   activity: "/activity",
@@ -354,7 +358,7 @@ export const all_routes = {
   leavereport: "/leave-report",
   dailyreport: "/daily-report",
 
-  // ----- Our Payroll Module -----
+  // ----- OUR PAYROLL MODULE -----
   salaryComponents: "/accounts/salary-components",
   salaryComponentsCreate: "/accounts/salary-components/create",
   salaryComponentsEdit: "/accounts/salary-components/edit/:id",
@@ -383,7 +387,7 @@ export const all_routes = {
   RTL: "/layout-rtl",
   Dark: "/layout-dark",
 
-    // ----- Icon Routes (Required by Sidebar & Horizontal Menu) -----
+  // ----- Icon Routes -----
   fontawesome: "/ui-fontawesome",
   featherIcons: "/ui-feather-icon",
   materialIcon: "/ui-material-icon",
@@ -393,11 +397,8 @@ export const all_routes = {
   typicon: "/ui-typicon",
   weatherIcon: "/ui-weather-icon",
 
-  // ----- Chart Alias Required by callerDetailsModal -----
+  // ----- Chart Alias -----
   chart: "/ui-chart-js",
-
 };
 
 export default all_routes;
-
-

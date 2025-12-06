@@ -6,20 +6,22 @@ from .models import Employee, Department, Designation, Policy
 #                     DEPARTMENT SERIALIZER
 # ==============================================================
 class DepartmentSerializer(serializers.ModelSerializer):
+    employee_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Department
-        fields = ("id", "name", "description")
+        fields = ("id", "name", "description", "employee_count")
+
+    def get_employee_count(self, obj):
+        return obj.employees.count()
 
 
 # ==============================================================
 #                     DESIGNATION SERIALIZER
 # ==============================================================
 class DesignationSerializer(serializers.ModelSerializer):
-
-    # READ-ONLY nested department info
     department_detail = DepartmentSerializer(source="department", read_only=True)
 
-    # WRITE-ONLY department foreign key
     department_id = serializers.PrimaryKeyRelatedField(
         queryset=Department.objects.all(),
         source="department",
@@ -34,25 +36,25 @@ class DesignationSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "description",
-            "department_id",        # write-only FK
-            "department_detail",    # read-only nested
+            "department_id",
+            "department_detail",
         )
         read_only_fields = ("department_detail",)
 
 
 # ==============================================================
-#                     EMPLOYEE SERIALIZER
+#                  EMPLOYEE SERIALIZER (FINAL)
 # ==============================================================
 class EmployeeSerializer(serializers.ModelSerializer):
 
-    # READ nested objects
+    # Read nested objects
     department = DepartmentSerializer(read_only=True)
     designation = DesignationSerializer(read_only=True)
 
-    # READ reporting_to employee details
+    # Reporting to detail
     reporting_to_detail = serializers.SerializerMethodField(read_only=True)
 
-    # WRITE-ONLY FKs
+    # Write-only foreign keys
     department_id = serializers.PrimaryKeyRelatedField(
         queryset=Department.objects.all(),
         source="department",
@@ -75,13 +77,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
         required=False
     )
 
-    # SAFE PHOTO UPLOAD HANDLING
     photo = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Employee
         fields = [
-            # Basic Info
+
+            # -----------------------------------
+            # BASIC INFORMATION
+            # -----------------------------------
             "id",
             "emp_code",
             "first_name",
@@ -90,17 +94,36 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "gender",
             "date_of_birth",
 
-            # Contact
+            # PERSONAL DETAILS
+            "father_name",
+            "mother_name",
+            "spouse_name",
+            "religion",
+            "nationality",
+
+            # -----------------------------------
+            # CONTACT INFORMATION
+            # -----------------------------------
             "email",
             "phone",
             "alternate_phone",
             "address",
 
-            # Emergency
+            # EMERGENCY INFO
             "emergency_contact_name",
             "emergency_contact_number",
 
-            # Job Info
+            # -----------------------------------
+            # DOCUMENTS
+            # -----------------------------------
+            "aadhar_number",
+            "pan_number",
+            "passport_number",
+            "driving_license_number",
+
+            # -----------------------------------
+            # JOB INFO
+            # -----------------------------------
             "role",
             "department",
             "department_id",
@@ -111,37 +134,70 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "reporting_to",
             "reporting_to_detail",
 
-            # HR Info
+            # -----------------------------------
+            # HR EXTRA
+            # -----------------------------------
             "national_id",
             "blood_group",
             "marital_status",
             "work_shift",
             "work_location",
 
-            # Profile
-            "photo",
+            # PREVIOUS EXPERIENCE
+            "previous_company",
+            "previous_experience_years",
+            "previous_salary",
+            "highest_qualification",
 
-            # Payroll
+            # HR TIMELINE INFO
+            "probation_period",
+            "confirmation_date",
+            "notice_period",
+
+            "resignation_date",
+            "resignation_reason",
+
+            # -----------------------------------
+            # BANK DETAILS
+            # -----------------------------------
+            "bank_name",
+            "bank_account_number",
+            "bank_ifsc",
+            "bank_branch",
+
+            # -----------------------------------
+            # PHOTO AND PAYROLL
+            # -----------------------------------
+            "photo",
             "salary",
 
-            # Status
+            # -----------------------------------
+            # STATUS
+            # -----------------------------------
             "is_active",
 
-            # Audit
+            # -----------------------------------
+            # AUDIT FIELDS
+            # -----------------------------------
             "created_by",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ("created_at", "updated_at", "reporting_to_detail")
 
-    # =======================================================
-    # Get reporting_to employee info (name + id)
-    # =======================================================
+        read_only_fields = [
+            "created_at",
+            "updated_at",
+            "reporting_to_detail",
+        ]
+
+    # -----------------------------------------------------------
+    # Reporting To detail structure
+    # -----------------------------------------------------------
     def get_reporting_to_detail(self, obj):
         if obj.reporting_to:
             return {
                 "id": obj.reporting_to.id,
-                "name": f"{obj.reporting_to.first_name} {obj.reporting_to.last_name or ''}"
+                "name": f"{obj.reporting_to.first_name} {obj.reporting_to.last_name or ''}".strip()
             }
         return None
 
@@ -151,10 +207,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
 # ==============================================================
 class PolicySerializer(serializers.ModelSerializer):
 
-    # Read-only nested department
     department_detail = DepartmentSerializer(source="department", read_only=True)
 
-    # Write-only FK
     department_id = serializers.PrimaryKeyRelatedField(
         queryset=Department.objects.all(),
         source="department",
@@ -169,12 +223,11 @@ class PolicySerializer(serializers.ModelSerializer):
             "id",
             "title",
             "appraisal_date",
-
-            "department_id",       # write-only
-            "department_detail",   # read-only nested
-
+            "department_id",
+            "department_detail",
             "description",
             "file",
             "created_at",
         ]
+
         read_only_fields = ("id", "created_at", "department_detail")

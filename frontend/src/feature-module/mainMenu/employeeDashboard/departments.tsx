@@ -6,13 +6,13 @@ type Dept = {
   id: number;
   name: string;
   description?: string | null;
+  employee_count?: number;   // ⭐ Added
 };
 
 const API_BASE = "http://localhost:8000/api";
 
 const DepartmentsPage: React.FC = () => {
   const [departments, setDepartments] = useState<Dept[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
 
   const [showAdd, setShowAdd] = useState(false);
@@ -34,19 +34,16 @@ const DepartmentsPage: React.FC = () => {
     return instance;
   }, []);
 
+  // ⭐ NOW WE ONLY LOAD departments — employee_count already included in API
   const loadAll = async () => {
     setLoading(true);
+
     try {
-      const [dRes, cRes] = await Promise.all([
-        axiosInstance.get(`${API_BASE}/departments/`),
-        axiosInstance.get(`${API_BASE}/employees/department_counts/`).catch(() => ({ data: {} })),
-      ]);
+      const dRes = await axiosInstance.get(`${API_BASE}/departments/`);
       setDepartments(Array.isArray(dRes.data) ? dRes.data : []);
-      setCounts(cRes.data || {});
     } catch (err) {
       console.error("Failed to load departments", err);
       setDepartments([]);
-      setCounts({});
     } finally {
       setLoading(false);
     }
@@ -113,7 +110,7 @@ const DepartmentsPage: React.FC = () => {
     }
   };
 
-  // ------------- FIXED LOGIC -------------------
+  // ⭐ FIXED LOGIC — NOW USE employee_count DIRECTLY FROM API
   const processed = useMemo(() => {
     const query = search.trim().toLowerCase();
 
@@ -122,26 +119,19 @@ const DepartmentsPage: React.FC = () => {
       (d.description || "").toLowerCase().includes(query)
     );
 
-    // FIX: read employee count using department ID only
-    list = list.map((d) => ({
-      ...d,
-      emp_count: counts[d.id] ?? 0,
-    })) as any[];
-
     // Sorting
     list.sort((a: any, b: any) => {
       if (sortBy === "name") {
         const res = a.name.localeCompare(b.name);
         return sortDir === "asc" ? res : -res;
       } else {
-        const res = (a.emp_count || 0) - (b.emp_count || 0);
+        const res = (a.employee_count || 0) - (b.employee_count || 0);
         return sortDir === "asc" ? res : -res;
       }
     });
 
     return list;
-  }, [departments, counts, search, sortBy, sortDir]);
-  // ----------------------------------------------
+  }, [departments, search, sortBy, sortDir]);
 
   return (
     <div className="page-wrapper">
@@ -227,13 +217,14 @@ const DepartmentsPage: React.FC = () => {
                           <small className="text-muted">{d.description ?? ""}</small>
                         </td>
 
+                        {/* ⭐ FIXED COUNT DISPLAY */}
                         <td style={{ textAlign: "center" }}>
-                          {String(d.emp_count).padStart(2, "0")}
+                          {String(d.employee_count ?? 0).padStart(2, "0")}
                         </td>
 
                         <td style={{ textAlign: "center" }}>
-                          <span className={`badge ${d.emp_count > 0 ? "bg-success" : "bg-secondary"}`}>
-                            {d.emp_count > 0 ? "Active" : "Inactive"}
+                          <span className={`badge ${d.employee_count > 0 ? "bg-success" : "bg-secondary"}`}>
+                            {d.employee_count > 0 ? "Active" : "Inactive"}
                           </span>
                         </td>
 

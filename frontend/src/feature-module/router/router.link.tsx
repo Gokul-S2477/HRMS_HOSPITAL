@@ -31,16 +31,16 @@ import UnderMaintenance from "../pages/underMaintenance";
 import Error404 from "../pages/error/error-404";
 import Error500 from "../pages/error/error-500";
 
-// PROTECTED SCREENS
+// PROTECTED ROUTE HANDLER
 import ProtectedRoute from "../../core/auth/ProtectedRoute";
 
-// Dashboards
+// MAIN DASHBOARDS
 import AdminDashboard from "../mainMenu/adminDashboard";
 import EmployeeDashboard from "../mainMenu/employeeDashboard/employee-dashboard";
 import LeadsDashboard from "../mainMenu/leadsDashboard";
 import DealsDashboard from "../mainMenu/dealsDashboard";
 
-// Employee Management
+// EMPLOYEE MODULE
 import EmployeeList from "../mainMenu/employeeDashboard/employee-list";
 import EmployeeGrid from "../mainMenu/employeeDashboard/employee-grid";
 import EmployeeDetails from "../mainMenu/employeeDashboard/employee-details";
@@ -57,15 +57,12 @@ import EmployeePayrollForm from "../accounts/employee-payroll/EmployeePayrollFor
 import PayslipList from "../accounts/payslips/PayslipList";
 import PayslipView from "../accounts/payslips/PayslipView";
 
-
+// ------------------------------
+// PUBLIC ROUTES
+// ------------------------------
 export const publicRoutes = [
-  {
-    path: "/",
-    element: <Navigate to={routes.login} />,
-    route: Route,
-  },
+  { path: "/", element: <Navigate to={routes.login} />, route: Route },
 
-  // LOGIN / REGISTER / PASSWORD FLOWS
   { path: routes.login, element: <Login />, route: Route },
   { path: routes.login2, element: <Login2 />, route: Route },
   { path: routes.login3, element: <Login3 />, route: Route },
@@ -82,11 +79,6 @@ export const publicRoutes = [
   { path: routes.resetPassword2, element: <ResetPassword2 />, route: Route },
   { path: routes.resetPassword3, element: <ResetPassword3 />, route: Route },
 
-
-//  { path: routes.resetPasswordSuccess, element: <ResetPasswordSuccess />, route: Route },
-//  { path: routes.resetPasswordSuccess2, element: <ResetPasswordSuccess2 />, route: Route },
-//  { path: routes.resetPasswordSuccess3, element: <ResetPasswordSuccess3 />, route: Route },
-
   { path: routes.twoStepVerification, element: <TwoStepVerification />, route: Route },
   { path: routes.twoStepVerification2, element: <TwoStepVerification2 />, route: Route },
   { path: routes.twoStepVerification3, element: <TwoStepVerification3 />, route: Route },
@@ -101,38 +93,40 @@ export const publicRoutes = [
   { path: routes.error404, element: <Error404 />, route: Route },
   { path: routes.error500, element: <Error500 />, route: Route },
 ];
-export const protectedRoutes = [
 
-  // DASHBOARDS
+// ------------------------------
+// PROTECTED ROUTES
+// ------------------------------
+export const protectedRoutes = [
+  // MAIN DASHBOARDS
   { path: routes.adminDashboard, element: <AdminDashboard /> },
   { path: routes.employeeDashboard, element: <EmployeeDashboard /> },
   { path: routes.leadsDashboard, element: <LeadsDashboard /> },
   { path: routes.dealsDashboard, element: <DealsDashboard /> },
 
-  // EMPLOYEE MODULE
+  // EMPLOYEE MODULE — USING ORIGINAL ROUTE NAMES
   { path: routes.employeeList, element: <EmployeeList /> },
   { path: routes.employeeAdd, element: <EmployeeAdd /> },
   { path: routes.employeeGrid, element: <EmployeeGrid /> },
   { path: routes.employeedetails, element: <EmployeeDetails /> },
+
+  // EMPLOYEE SETTINGS
   { path: routes.departments, element: <Departments /> },
   { path: routes.designations, element: <Designations /> },
   { path: routes.policy, element: <Policies /> },
 
-  // ⭐ PAYROLL – Salary Components
+  // PAYROLL
   { path: routes.salaryComponents, element: <SalaryComponentsList /> },
   { path: routes.salaryComponentsCreate, element: <SalaryComponentsForm /> },
-  { path: `${routes.salaryComponentsEdit}`, element: <SalaryComponentsForm /> },
+  { path: routes.salaryComponentsEdit, element: <SalaryComponentsForm /> },
 
-  // ⭐ PAYROLL – Employee Payroll
   { path: routes.employeePayroll, element: <EmployeePayrollList /> },
   { path: routes.employeePayrollCreate, element: <EmployeePayrollForm /> },
-  { path: `${routes.employeePayrollEdit}`, element: <EmployeePayrollForm /> },
+  { path: routes.employeePayrollEdit, element: <EmployeePayrollForm /> },
 
-  // ⭐ PAYROLL – Payslips
   { path: routes.payslips, element: <PayslipList /> },
-  { path: `${routes.payslipsView}`, element: <PayslipView /> },
+  { path: routes.payslipsView, element: <PayslipView /> },
 ];
-
 
 
 
